@@ -1,0 +1,6 @@
+PerformInTalentShows(Bonnie)
+set()
+{'Bonnie'}
+{'PerformInTalentShows'}
+F0(C0)
+{'PerformInTalentShows': 'F0', 'Bonnie': 'C0'}

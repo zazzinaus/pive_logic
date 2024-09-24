@@ -1,0 +1,24 @@
+True
+
+============================== prooftrans ============================
+Prover9 (64) version 2009-11A, November 2009.
+Process 15192 was started by root on 8ced14c147b9,
+Tue May 14 17:24:39 2024
+The command was "../Prover9/bin/prover9".
+============================== end of head ===========================
+
+============================== end of input ==========================
+
+============================== PROOF =================================
+
+
+
+1 -(all x (Movie(x) -> HappyEnding(x))).  [assumption].
+2 (exists x (Movie(x) & -HappyEnding(x))).  [goal].
+3 -Movie(x) | HappyEnding(x).  [deny(2)].
+4 Movie(c1).  [clausify(1)].
+8 -HappyEnding(c1).  [clausify(1)].
+10 HappyEnding(c1).  [resolve(3,a,4,a)].
+13 $F.  [resolve(10,a,8,a)].
+
+============================== end of proof ==========================
