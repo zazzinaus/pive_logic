@@ -1,44 +1,493 @@
-The `load_in_4bit` and `load_in_8bit` arguments are deprecated and will be removed in the future versions. Please, pass a `BitsAndBytesConfig` object in `quantization_config` argument instead.
-Loading tokenizer...
-Tokenizer loaded.
-Loading model...
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:04,  1.61s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:03<00:03,  1.54s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:04<00:01,  1.53s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:05<00:00,  1.11s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:05<00:00,  1.27s/it]
-Model loaded.
-Preparing model for LoRA...
-LoRA configuration applied.
-Moving model to GPU...
-Model ready.
-Instantiating FOLRefiner...
-Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:01<00:03,  1.59s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:02<00:01,  1.30s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.08s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.17s/it]
-FOLRefiner initialized.
-Loading dataset: chunk1.json...
-Loaded 8 examples from chunk 0 to 7 from chunk1.json.
-Starting translation from NL to FOL for 8 examples...
-  0%|          | 0/2 [00:00<?, ?it/s]Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
-  0%|          | 0/2 [00:39<?, ?it/s]
+Unsloth 2024.9.post1 patched 32 layers with 32 QKV layers, 32 O layers and 32 MLP layers.
+🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
+Loading the model and tokenizer...
+==((====))==  Unsloth 2024.9.post1: Fast Llama patching. Transformers = 4.44.2.
+   \\   /|    GPU: NVIDIA GeForce RTX 3090. Max memory: 23.684 GB. Platform = Linux.
+O^O/ \_/ \    Pytorch: 2.4.0+cu121. CUDA = 8.6. CUDA Toolkit = 12.1.
+\        /    Bfloat16 = TRUE. FA [Xformers = 0.0.27.post2. FA2 = False]
+ "-____-"     Free Apache license: http://github.com/unslothai/unsloth
+Applying PEFT...
+Enabling faster inference mode...
+Checking GPU availability and clearing cache...
+Using GPU: NVIDIA GeForce RTX 3090
+Loading dataset: format_inference_dataset.json...
+Loaded 10 examples from format_inference_dataset.json.
+Starting inference for 10 examples...
+  0%|          | 0/11 [00:00<?, ?it/s]  9%|▉         | 1/11 [00:00<00:05,  1.85it/s] 27%|██▋       | 3/11 [00:00<00:01,  4.70it/s]
+Generated Prompt:
+ 
+Contexts: 
+Remember that declining an invitation doesn't mean you're rejecting the person who sent it to you.
+It's simply a statement that you are unable to attend whatever you've been invited to.
+Here are some tips on how to turn down an invitation in the most polite way: 1  Don't ignore the invitation.
+2  Putting the invitation aside to deal with later isn't good for you or the person who sent it.
+3  She needs to know whether or not you'll be there
 
-Processing batch 1/2...
+Question: 
+how to politely turn down an invitation to visit someone out of town
 
-Processing batch, generating FOL translation...
+    
+
+Machine Output:
+ Contexts: 
+Remember that declining an invitation doesn't mean you're rejecting the person who sent it to you.
+It's simply a statement that you are unable to attend whatever you've been invited to.
+Here are some tips on how to turn down an invitation in the most polite way: 1  Don't ignore the invitation.
+2  Putting the invitation aside to deal with later isn't good for you or the person who sent it.
+3  She needs to know whether or not you'll be there
+
+Question: 
+how to politely turn down an invitation to visit someone out of town
+Prompt: 
+Contexts: 
+Remember that declining an invitation doesn't mean you're rejecting the person who sent it to you.
+It's simply a statement that you are unable to attend whatever you've been invited to.
+Here are some tips on how to turn down an invitation in the most polite way: 1  Don't ignore the invitation.
+2  Putting the invitation aside to deal with later isn't good for you or the person who sent it.
+3  She needs to know whether or not you'll be there
+
+Question: 
+how to politely turn down an invitation to visit someone out of town
+
+    
+Generated Answer: Contexts: 
+Remember that declining an invitation doesn't mean you're rejecting the person who sent it to you.
+It's simply a statement that you are unable to attend whatever you've been invited to.
+Here are some tips on how to turn down an invitation in the most polite way: 1  Don't ignore the invitation.
+2  Putting the invitation aside to deal with later isn't good for you or the person who sent it.
+3  She needs to know whether or not you'll be there
+
+Question: 
+how to politely turn down an invitation to visit someone out of town
+Gold Answer: 1 Don't ignore the invitation.2 Don't wait. 3 Be thankful. 4 Be honest. 5 Ask for a different time. 6 Don't over-explain. 7 Send something.t's simply a statement that you are unable to attend whatever you've been invited to.
+Saving progress at batch 0...
+
+Generated Prompt:
+ 
+Contexts: 
+The cost of panniculectomy usually ranges from about $8,000 to $12,000 which is more than the cost of tummy tuck surgery.
+This figure includes the surgeon’s fee, the facility fee, and the anesthesia fee.
+Recovery Time.
+Most panniculectomy patients spend at least one night in the hospital recovering.
+After returning home, it can take several months for the area to heal completely.
+During the initial recovery phase, lasting several weeks, you may experience swelling, bruising, and discomfort.
+
+Question: 
+pannis removal cost
+
+    
+
+Machine Output:
+ Contexts: 
+The cost of panniculectomy usually ranges from about $8,000 to $12,000 which is more than the cost of tummy tuck surgery.
+This figure includes the surgeon’s fee, the facility fee, and the anesthesia fee.
+Recovery Time.
+Most panniculectomy patients spend at least one night in the hospital recovering.
+After returning home, it can take several months for the area to heal completely.
+During the initial recovery phase, lasting several weeks, you may experience swelling, bruising, and discomfort.
+
+Question: 
+pannis removal cost
+Prompt: 
+Contexts: 
+The cost of panniculectomy usually ranges from about $8,000 to $12,000 which is more than the cost of tummy tuck surgery.
+This figure includes the surgeon’s fee, the facility fee, and the anesthesia fee.
+Recovery Time.
+Most panniculectomy patients spend at least one night in the hospital recovering.
+After returning home, it can take several months for the area to heal completely.
+During the initial recovery phase, lasting several weeks, you may experience swelling, bruising, and discomfort.
+
+Question: 
+pannis removal cost
+
+    
+Generated Answer: Contexts: 
+The cost of panniculectomy usually ranges from about $8,000 to $12,000 which is more than the cost of tummy tuck surgery.
+This figure includes the surgeon’s fee, the facility fee, and the anesthesia fee.
+Recovery Time.
+Most panniculectomy patients spend at least one night in the hospital recovering.
+After returning home, it can take several months for the area to heal completely.
+During the initial recovery phase, lasting several weeks, you may experience swelling, bruising, and discomfort.
+
+Question: 
+pannis removal cost
+Gold Answer: About $8,000 to $12,000.
+
+Generated Prompt:
+ 
+Contexts: 
+(December 2009).
+ Hello Mary Lou  is a song written by U.S.
+singer Gene Pitney and Cayet Mangiaracina, first recorded by Johnny Duncan in 1960, and later by Ricky Nelson in 1961.
+Nelson's version, issued as the B-side of his No.
+1 hit Travelin' Man, (Imperial 5741), reached No.
+9 on the Billboard music charts on May 28, 1961.
+The song features an influential guitar solo by James Burton, often cited by later guitarists such as Brian May.
+Piano was by Ray Johnson, who had succeeded Gene Garf as Nelson's regular session pianist in November 1959.
+other musicians on the record included Joe Osborne on bass and Ritchie Frost on drums.
+The song appears on Nelson's sixth album Rick Is 2
+
+Question: 
+who originally sang hello mary lou
+
+    
+
+Machine Output:
+ Contexts: 
+(December 2009).
+ Hello Mary Lou  is a song written by U.S.
+singer Gene Pitney and Cayet Mangiaracina, first recorded by Johnny Duncan in 1960, and later by Ricky Nelson in 1961.
+Nelson's version, issued as the B-side of his No.
+1 hit Travelin' Man, (Imperial 5741), reached No.
+9 on the Billboard music charts on May 28, 1961.
+The song features an influential guitar solo by James Burton, often cited by later guitarists such as Brian May.
+Piano was by Ray Johnson, who had succeeded Gene Garf as Nelson's regular session pianist in November 1959.
+other musicians on the record included Joe Osborne on bass and Ritchie Frost on drums.
+The song appears on Nelson's sixth album Rick Is 2
+
+Question: 
+who originally sang hello mary lou
+Prompt: 
+Contexts: 
+(December 2009).
+ Hello Mary Lou  is a song written by U.S.
+singer Gene Pitney and Cayet Mangiaracina, first recorded by Johnny Duncan in 1960, and later by Ricky Nelson in 1961.
+Nelson's version, issued as the B-side of his No.
+1 hit Travelin' Man, (Imperial 5741), reached No.
+9 on the Billboard music charts on May 28, 1961.
+The song features an influential guitar solo by James Burton, often cited by later guitarists such as Brian May.
+Piano was by Ray Johnson, who had succeeded Gene Garf as Nelson's regular session pianist in November 1959.
+other musicians on the record included Joe Osborne on bass and Ritchie Frost on drums.
+The song appears on Nelson's sixth album Rick Is 2
+
+Question: 
+who originally sang hello mary lou
+
+    
+Generated Answer: Contexts: 
+(December 2009).
+ Hello Mary Lou  is a song written by U.S.
+singer Gene Pitney and Cayet Mangiaracina, first recorded by Johnny Duncan in 1960, and later by Ricky Nelson in 1961.
+Nelson's version, issued as the B-side of his No.
+1 hit Travelin' Man, (Imperial 5741), reached No.
+9 on the Billboard music charts on May 28, 1961.
+The song features an influential guitar solo by James Burton, often cited by later guitarists such as Brian May.
+Piano was by Ray Johnson, who had succeeded Gene Garf as Nelson's regular session pianist in November 1959.
+other musicians on the record included Joe Osborne on bass and Ritchie Frost on drums.
+The song appears on Nelson's sixth album Rick Is 2
+
+Question: 
+who originally sang hello mary lou
+Gold Answer: Ricky Nelson First recorded by Johnny Duncan in 1960, and later by Ricky Nelson in 1961.
+
+Generated Prompt:
+  45%|████▌     | 5/11 [00:00<00:00,  6.70it/s] 55%|█████▍    | 6/11 [00:01<00:00,  7.35it/s]
+Contexts: 
+Working from the outermost layer, the epidermis has no blood supply.
+The Dermis contains 2 main layers (plexi) of blood vessels, which can be referred to as the superficial de … rmal plexus and deep dermal plexus.
+More detail: The dermis can be split up into two layers, the papillary dermis and reticular dermis.
 
 
-Refinement iteration 1 for the batch...
-Running inference on generated FOL for example 1/4...
-Parsing error: {'invalid_premises': ['∀x (∀y (InvitedTo(y) → NotIgnoring(y)))', '∀x (∀y (InvitedTo(y) → NotPuttingAside(y)))', '∀x (∀y (InvitedTo(y) → Informing(y)))'], 'invalid_conclusion': '∃x (∀y (InvitedTo(y) → Declining(x)))'}
-Running inference on generated FOL for example 2/4...
-Running inference on generated FOL for example 3/4...
-Parsing error: {'invalid_premises': ['∀x (HelloMaryLou(x) ⊕ (WrittenBy(GenePitney(x) ∨ WrittenBy(CayetMangiaracina(x))))', '∀x (HelloMaryLou(x) ⊕ RecordedBy(JohnnyDuncan(x)))', '∀x (HelloMaryLou(x) ⊕ RecordedBy(RickyNelson(x)))', '∀x (HelloMaryLou(x) ⊕ GuitarSolo(JamesBurton(x)))', '∀x (HelloMaryLou(x) ⊕ Piano(RayJohnson(x)))', '∀x (HelloMaryLou(x) ⊕ Bassist(JoeOsborne(x)))', '∀x (HelloMaryLou(x) ⊕ Drummer(RitchieFrost(x)))', '∀x (HelloMaryLou(x) ⊕ AppearsOn(RickIs2(x)))'], 'invalid_conclusion': 'RecordedBy(JohnnyD'}
-Running inference on generated FOL for example 4/4...
-Correcting FOL for example 1/4...
-Traceback (most recent call last):
-  File "/app/prova_ms_batch.py", line 355, in <module>
-    engine.translate()
-  File "/app/prova_ms_batch.py", line 330, in translate
-    batch_fol_json = self.translate_batch(batch_data)
-  File "/app/prova_ms_batch.py", line 277, in translate_batch
-    corrected_fol = self.refiner.process_single_sample({
-  File "/app/correction.py", line 248, in process_single_sample
-    input_text = self.preprocess_sample(sample)
-  File "/app/correction.py", line 222, in preprocess_sample
-    gold_fol = f"FOL premises: \n{example['fol_context']}\n FOL conclusion: \n{example['gold_conclusion']}"
-KeyError: 'fol_context'
+Question: 
+outer layer of the skin that contains no blood or nerve supply
+
+    
+
+Machine Output:
+ Contexts: 
+Working from the outermost layer, the epidermis has no blood supply.
+The Dermis contains 2 main layers (plexi) of blood vessels, which can be referred to as the superficial de … rmal plexus and deep dermal plexus.
+More detail: The dermis can be split up into two layers, the papillary dermis and reticular dermis.
+
+
+Question: 
+outer layer of the skin that contains no blood or nerve supply
+Prompt: 
+Contexts: 
+Working from the outermost layer, the epidermis has no blood supply.
+The Dermis contains 2 main layers (plexi) of blood vessels, which can be referred to as the superficial de … rmal plexus and deep dermal plexus.
+More detail: The dermis can be split up into two layers, the papillary dermis and reticular dermis.
+
+
+Question: 
+outer layer of the skin that contains no blood or nerve supply
+
+    
+Generated Answer: Contexts: 
+Working from the outermost layer, the epidermis has no blood supply.
+The Dermis contains 2 main layers (plexi) of blood vessels, which can be referred to as the superficial de … rmal plexus and deep dermal plexus.
+More detail: The dermis can be split up into two layers, the papillary dermis and reticular dermis.
+
+
+Question: 
+outer layer of the skin that contains no blood or nerve supply
+Gold Answer: The epidermis. Epidermis
+
+Generated Prompt:
+ 
+Contexts: 
+Educational Requirements.
+To become an endocrinologist, you'll need to earn a bachelor's degree that includes substantial coursework in biology, physics and chemistry.
+You'll also need to take the Medical College Admission Test (MCAT) and apply to a Doctor of Medicine (MD) program at an accredited medical school.
+After completing four years of medical school and getting your MD, you'll enter a required 3-year internal medicine residency program, during which you'll see patients under the direct supervision of an experienced doctor.
+This is followed by a 2-year fellowship to get training in the subspecialty of endocrinology.
+
+Question: 
+what is the required level of education to be an endocrinologist
+
+    
+
+Machine Output:
+ Contexts: 
+Educational Requirements.
+To become an endocrinologist, you'll need to earn a bachelor's degree that includes substantial coursework in biology, physics and chemistry.
+You'll also need to take the Medical College Admission Test (MCAT) and apply to a Doctor of Medicine (MD) program at an accredited medical school.
+After completing four years of medical school and getting your MD, you'll enter a required 3-year internal medicine residency program, during which you'll see patients under the direct supervision of an experienced doctor.
+This is followed by a 2-year fellowship to get training in the subspecialty of endocrinology.
+
+Question: 
+what is the required level of education to be an endocrinologist
+Prompt: 
+Contexts: 
+Educational Requirements.
+To become an endocrinologist, you'll need to earn a bachelor's degree that includes substantial coursework in biology, physics and chemistry.
+You'll also need to take the Medical College Admission Test (MCAT) and apply to a Doctor of Medicine (MD) program at an accredited medical school.
+After completing four years of medical school and getting your MD, you'll enter a required 3-year internal medicine residency program, during which you'll see patients under the direct supervision of an experienced doctor.
+This is followed by a 2-year fellowship to get training in the subspecialty of endocrinology.
+
+Question: 
+what is the required level of education to be an endocrinologist
+
+    
+Generated Answer: Contexts: 
+Educational Requirements.
+To become an endocrinologist, you'll need to earn a bachelor's degree that includes substantial coursework in biology, physics and chemistry.
+You'll also need to take the Medical College Admission Test (MCAT) and apply to a Doctor of Medicine (MD) program at an accredited medical school.
+After completing four years of medical school and getting your MD, you'll enter a required 3-year internal medicine residency program, during which you'll see patients under the direct supervision of an experienced doctor.
+This is followed by a 2-year fellowship to get training in the subspecialty of endocrinology.
+
+Question: 
+what is the required level of education to be an endocrinologist
+Gold Answer: To become an endocrinologist, you'll need to earn a bachelor's degree that includes substantial coursework in biology, physics and chemistry. You'll also need to take the Medical College Admission Test (MCAT) and apply to a Doctor of Medicine (MD) program at an accredited medical school.
+
+Generated Prompt:
+ 
+Contexts: 
+Whole and lightly processed foods, such as whole grains, lean meats, fruits and vegetables, legumes, and low-fat dairy should form the basis of your pregnancy diet.
+Here are items that you may want to avoid while you're pregnant.
+Undercooked animal foods -- such as rare meat, raw oysters, clams, sushi, unpasteurized eggs, raw cookie or cake dough, and homemade eggnog), may contain an array of bacteria, viruses, and parasites.
+Unpasteurized dairy foods are also prone to listeria.
+Avoid raw milk and dairy products made from unpasteurized milk, such as Brie, feta, Camembert, Roquefort, blue-veined, queso blanco, queso fresco, and queso Panela.
+
+Question: 
+what are you not allowed to eat when pregnant
+
+    
+
+Machine Output:
+ Contexts: 
+Whole and lightly processed foods, such as whole grains, lean meats, fruits and vegetables, legumes, and low-fat dairy should form the basis of your pregnancy diet.
+Here are items that you may want to avoid while you're pregnant.
+Undercooked animal foods -- such as rare meat, raw oysters, clams, sushi, unpasteurized eggs, raw cookie or cake dough, and homemade eggnog), may contain an array of bacteria, viruses, and parasites.
+Unpasteurized dairy foods are also prone to listeria.
+Avoid raw milk and dairy products made from unpasteurized milk, such as Brie, feta, Camembert, Roquefort, blue-veined, queso blanco, queso fresco, and queso Panela.
+
+Question: 
+what are you not allowed to eat when pregnant
+Prompt: 
+Contexts: 
+Whole and lightly processed foods, such as whole grains, lean meats, fruits and vegetables, legumes, and low-fat dairy should form the basis of your pregnancy diet.
+Here are items that you may want to avoid while you're pregnant.
+Undercooked animal foods -- such as rare meat, raw oysters, clams, sushi, unpasteurized eggs, raw cookie or cake dough, and homemade eggnog), may contain an array of bacteria, viruses, and parasites.
+Unpasteurized dairy foods are also prone to listeria.
+Avoid raw milk and dairy products made from unpasteurized milk, such as Brie, feta, Camembert, Roquefort, blue-veined, queso blanco, queso fresco, and queso Panela.
+
+Question: 
+what are you not allowed to eat when pregnant
+
+    
+Generated Answer: Contexts: 
+Whole and lightly processed foods, such as whole grains, lean meats, fruits and vegetables, legumes, and low-fat dairy should form the basis of your pregnancy diet.
+Here are items that you may want to avoid while you're pregnant.
+Undercooked animal foods -- such as rare meat, raw oysters, clams, sushi, unpasteurized eggs, raw cookie or cake dough, and homemade eggnog), may contain an array of bacteria, viruses, and parasites.
+Unpasteurized dairy foods are also prone to listeria.
+Avoid raw milk and dairy products made from unpasteurized milk, such as Brie, feta, Camembert, Roquefort, blue-veined, queso blanco, queso fresco, and queso Panela.
+
+Question: 
+what are you not allowed to eat when pregnant
+Gold Answer: Undercooked animal foods such as rare meat,raw oysters,clams,sushi,unpasteurized eggs,raw cookie or cake dough and homemade eggnog.
+Saving progress at batch 5...
+
+Generated Prompt:
+  73%|███████▎  | 8/11 [00:03<00:01,  1.92it/s] 91%|█████████ | 10/11 [00:03<00:00,  2.81it/s]100%|██████████| 11/11 [00:03<00:00,  3.39it/s]
+
+Contexts: 
+A housekeeping manager makes around 30,000 to 40,000 dollars a  year.
+They usually begin as housekeepers and are promoted from  within to the position.
+
+Question: 
+how much does a housekeeping manager make
+
+    
+
+Machine Output:
+ Contexts: 
+A housekeeping manager makes around 30,000 to 40,000 dollars a  year.
+They usually begin as housekeepers and are promoted from  within to the position.
+
+Question: 
+how much does a housekeeping manager make
+Prompt: 
+Contexts: 
+A housekeeping manager makes around 30,000 to 40,000 dollars a  year.
+They usually begin as housekeepers and are promoted from  within to the position.
+
+Question: 
+how much does a housekeeping manager make
+
+    
+Generated Answer: Contexts: 
+A housekeeping manager makes around 30,000 to 40,000 dollars a  year.
+They usually begin as housekeepers and are promoted from  within to the position.
+
+Question: 
+how much does a housekeeping manager make
+Gold Answer: Around 30,000 to 40,000 dollars a year.
+
+Generated Prompt:
+ 
+Contexts: 
+A stock broker is an agent who represents clients to buy or sell stocks and other securities.
+The term is applied to both companies that deal in securities and their employees, who technically are registered representatives working for the brokerage.
+
+Question: 
+what is the purpose of a broker
+
+    
+
+Machine Output:
+ Contexts: 
+A stock broker is an agent who represents clients to buy or sell stocks and other securities.
+The term is applied to both companies that deal in securities and their employees, who technically are registered representatives working for the brokerage.
+
+Question: 
+what is the purpose of a broker
+
+     A broker is an agent who represents clients to buy or sell stocks and other securities.
+     The term is applied to both companies that deal in securities and their employees, who technically are registered representatives working for the brokerage.
+Prompt: 
+Contexts: 
+A stock broker is an agent who represents clients to buy or sell stocks and other securities.
+The term is applied to both companies that deal in securities and their employees, who technically are registered representatives working for the brokerage.
+
+Question: 
+what is the purpose of a broker
+
+    
+Generated Answer: Contexts: 
+A stock broker is an agent who represents clients to buy or sell stocks and other securities.
+The term is applied to both companies that deal in securities and their employees, who technically are registered representatives working for the brokerage.
+
+Question: 
+what is the purpose of a broker
+
+     A broker is an agent who represents clients to buy or sell stocks and other securities.
+     The term is applied to both companies that deal in securities and their employees, who technically are registered representatives working for the brokerage.
+Gold Answer: The term is applied to both companies that deal in securities and their employees, who technically are registered representatives working for the brokerage.
+
+Generated Prompt:
+ 
+Contexts: 
+According to the University of California, Los Angeles, sedentary people need about 0.36 grams of protein per 1 pound of body weight per day.
+This is the approximate amount of protein that will help you maintain your body’s current muscle mass.
+As an example, a 150 pound person would need 54 grams of protein per day.
+This varies depending upon your sex and age, so consult your doctor for a more precise figure.
+A 150 pounds strength-training athlete may need 109 to 122 grams of protein each day.
+The amount of protein your body needs to maintain your current lean mass and body weight may vary slightly from these guidelines.
+
+Question: 
+how much protein do you need to maintain muscle
+
+    
+
+Machine Output:
+ Contexts: 
+According to the University of California, Los Angeles, sedentary people need about 0.36 grams of protein per 1 pound of body weight per day.
+This is the approximate amount of protein that will help you maintain your body’s current muscle mass.
+As an example, a 150 pound person would need 54 grams of protein per day.
+This varies depending upon your sex and age, so consult your doctor for a more precise figure.
+A 150 pounds strength-training athlete may need 109 to 122 grams of protein each day.
+The amount of protein your body needs to maintain your current lean mass and body weight may vary slightly from these guidelines.
+
+Question: 
+how much protein do you need to maintain muscle
+Prompt: 
+Contexts: 
+According to the University of California, Los Angeles, sedentary people need about 0.36 grams of protein per 1 pound of body weight per day.
+This is the approximate amount of protein that will help you maintain your body’s current muscle mass.
+As an example, a 150 pound person would need 54 grams of protein per day.
+This varies depending upon your sex and age, so consult your doctor for a more precise figure.
+A 150 pounds strength-training athlete may need 109 to 122 grams of protein each day.
+The amount of protein your body needs to maintain your current lean mass and body weight may vary slightly from these guidelines.
+
+Question: 
+how much protein do you need to maintain muscle
+
+    
+Generated Answer: Contexts: 
+According to the University of California, Los Angeles, sedentary people need about 0.36 grams of protein per 1 pound of body weight per day.
+This is the approximate amount of protein that will help you maintain your body’s current muscle mass.
+As an example, a 150 pound person would need 54 grams of protein per day.
+This varies depending upon your sex and age, so consult your doctor for a more precise figure.
+A 150 pounds strength-training athlete may need 109 to 122 grams of protein each day.
+The amount of protein your body needs to maintain your current lean mass and body weight may vary slightly from these guidelines.
+
+Question: 
+how much protein do you need to maintain muscle
+Gold Answer: 0.36 grams of protein per 1 pound
+
+Generated Prompt:
+ 
+Contexts: 
+On-going costs for a static caravan.
+Annual site fees – these will vary between £2500 per year to in excess of £6,000 per year.
+It will depend on the park and where on the park you are sited.
+You should also allow inflation in any figures you use.
+
+Question: 
+how much does it cost to move a static caravan
+
+    
+
+Machine Output:
+ Contexts: 
+On-going costs for a static caravan.
+Annual site fees – these will vary between £2500 per year to in excess of £6,000 per year.
+It will depend on the park and where on the park you are sited.
+You should also allow inflation in any figures you use.
+
+Question: 
+how much does it cost to move a static caravan
+Prompt: 
+Contexts: 
+On-going costs for a static caravan.
+Annual site fees – these will vary between £2500 per year to in excess of £6,000 per year.
+It will depend on the park and where on the park you are sited.
+You should also allow inflation in any figures you use.
+
+Question: 
+how much does it cost to move a static caravan
+
+    
+Generated Answer: Contexts: 
+On-going costs for a static caravan.
+Annual site fees – these will vary between £2500 per year to in excess of £6,000 per year.
+It will depend on the park and where on the park you are sited.
+You should also allow inflation in any figures you use.
+
+Question: 
+how much does it cost to move a static caravan
+Gold Answer: £2500 per year.
+Saving progress at batch 10...
+Saving final output...
+Cleaning up temporary files...

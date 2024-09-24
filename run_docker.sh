@@ -7,7 +7,7 @@ fi
 case $1 in
     run)
         # Run the docker container
-        docker run -v ./:/app/ --rm --gpus device=1 -d -it --name fol-container1 fol #device=0,1,$CUDA_VISIBLE_DEVICES
+        docker run -v ./:/app/ --rm --gpus device=0 -d -it --name fol-container1 fol #device=0,1,$CUDA_VISIBLE_DEVICES
         ;;
     exec)
         # Execute the models inside the docker container
