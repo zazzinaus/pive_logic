@@ -38,7 +38,7 @@ CornishHen(x)
 parsing error
 invalid premises
 ∀x (CornishHen(x) ⊕ (Large(x) ∧ English(x) ∧ (Feathers(x = White) ∨ Feathers(x = Black) ∨ Feathers(x = Red)
-invalid conclusion
+invalid question
 None
 
 ### FOL Correction:
