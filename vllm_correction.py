@@ -49,7 +49,7 @@ class FOLRefiner:
         
         # Handle cases where the generated text might not contain the expected "### FOL Correction:" marker
         if "### FOL Correction:" in response:
-            corrected_fol = response.split("### FOL Correction:\n")[1].strip()
+            corrected_fol = response.split("### FOL Correction:\n")[2].strip()
         else:
             corrected_fol = "### FOL Correction: Correction Error"  # Fallback if no correction is found
 

@@ -31,8 +31,8 @@ with open("chunk1_0_300_corrected_ms.json", 'r') as f:
 # response_template = " ### Answer:"
 # collator = DataCollatorForCompletionOnlyLM(response_template, tokenizer=tokenizer)
 def formatting_prompts_func(example):
-    formatted_dataset = []
-    for data in example:
+    formatted_sample = []
+    for data in range(example['example_id']):
             prompt_text = f"""<|begin_of_text|>{{
 Use the natuaral language and the first-order logic translation of contexts and question to answer the queries.
 Answer only in Natural Language with the response and nothing else.
@@ -50,8 +50,11 @@ You are a helpful assistant.
 {data['generated_fol_conclusion']}
 
 ### Answer:
+{data['gold_answer']}
 }}
     """
+    formatted_sample.append(prompt_text)
+#     return output_texts
 # formatted_dataset = []
 # for data in corrected_dataset:
 #     prompt_text = f"""<|begin_of_text|>{{
