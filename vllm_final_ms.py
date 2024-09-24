@@ -228,81 +228,145 @@ NL question:
         ]
 
         json_ms_marco = []
+
         for idx, prompt in enumerate(batch_prompt_inputs):
             print(f"\nTranslating NL to FOL for example {idx + 1}/{len(batch_data.example_ids)}...")
+            
+            # Print GPU memory usage before inference
+            print("GPU memory usage before inference:")
+            print_gpu_memory_usage()
 
-            inputs = prompt  # The raw prompt string is now used for vLLM
+            corrected_fol = None
+            refined_response = None
+            base_prompt = prompt
+            inputs = self.tokenizer([prompt], return_tensors="pt").to("cuda")
+
+            prompt_before_user = base_prompt.split("<|start_header_id|>user<|end_header_id|>")[0]
+            prompt_after_user = "<|start_header_id|>user<|end_header_id|>" + base_prompt.split("<|start_header_id|>user<|end_header_id|>")[1]
 
             for i in range(3):
-                print(f"\nRefinement iteration {i + 1} for example {idx + 1}...")
-
-                # Use vLLM to generate the response
-                outputs = self.model.generate([inputs], sampling_params=self.sampling_params)
-                generated_texts = outputs[0].outputs[0].text
+                #print(f"\nRefinement iteration {i + 1} for example {idx + 1}...")
+                outputs = self.model.generate(**inputs, max_new_tokens=256, use_cache=True)
+                generated_texts = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
                 response = self.extract_response(generated_texts)
+                #print(f"Generated FOL (iteration {i + 1}): {response}")
 
-                # Process the response (unchanged from original code)
-                generated_premises, generated_conclusion = self.parse_generated_fol(response)
-                prover_answer, prover_status, prover_error, invalid_data = self.run_fol_inference(generated_premises, generated_conclusion)
+                if "FOL premises:" in response and "FOL question:" in response:
+                    parts = response.split("FOL question:")
+                    generated_premises = parts[0].split("FOL premises:")[1].strip()
+                    generated_conclusion = parts[1].strip()
+                else:
+                    generated_premises = ""
+                    generated_conclusion = ""
+                
+                print("Running inference on generated FOL...")
+                prover_answer, prover_status, prover_error = None, None, None
 
-                if prover_answer == "True":
-                    break
+                print(f"Continuous mode is: {self.continuous}")
+                if self.continuous:
+                    prover_answer, prover_status, prover_error, invalid_data = inference_on_generated_fol(
+                        generated_premises, generated_conclusion)
+                    
+                    #print(f"Inference result: {prover_answer}, Errors: {prover_status} {prover_error} ")
+                    invalid_data = invalid_data if isinstance(invalid_data, dict) else {}
 
-                # Correct FOL with FOLRefiner
-                corrected_fol = self.refiner.process_single_sample({
-                    'generated_fol_premises': generated_premises,
-                    'generated_fol_conclusion': generated_conclusion,
-                    'nl_context': batch_data.contexts[idx],
-                    'nl_question': batch_data.questions[idx],
-                    'prover_answer': prover_answer,
-                    'prover_status': prover_status,
-                    'prover_error': prover_error,
-                    'invalid_premises': invalid_data.get("invalid_premises", None),
-                    'invalid_conclusion': invalid_data.get("invalid_conclusion", None),
-                    'gold_answer': batch_data.gold_answers[idx]
-                })
-                inputs = prompt + f"\nCorrected FOL:\n{corrected_fol}"
+                    print("Correcting FOL...")
+                    corrected_fol = self.refiner.process_single_sample({
+                        'generated_fol_premises': generated_premises,
+                        'generated_fol_conclusion': generated_conclusion,
+                        'nl_context': batch_data.contexts[idx],
+                        'nl_question': batch_data.questions[idx],
+                        'prover_answer': prover_answer,
+                        'prover_status': prover_status,
+                        'prover_error': prover_error,
+                        'invalid_premises': invalid_data.get("invalid_premises", None),  # Include invalid premises
+                        'invalid_conclusion': invalid_data.get("invalid_conclusion", None),  # Include invalid conclusion
+                        #'fol_context': batch_data.fol_contexts[idx],
+                        #'gold_conclusion': batch_data.fol_gold_questions[idx],
+                        'gold_answer': batch_data.gold_answers[idx]
+                    })
+                    #print(f"Corrected FOL: {corrected_fol}")
+                    
+                    # Check if corrected FOL starts with "N/A" and break if it does
+                    if prover_answer == "True":
+                        print("FOL already proved by Prover9, breaking the refinement loop.")
+                        break
 
-            # Store the results (unchanged)
-            json_ms_marco.append(self.format_output(generated_premises, generated_conclusion, prover_answer, corrected_fol))
+                    refinement_string = f"Results from Prover9 (round {i + 1}): {prover_answer}, {prover_status}, {prover_error},\nInvalid sentences {invalid_data}\nFOLRefiner answer:\nFOL correction: {corrected_fol}\n\n"
+                    #print(f"Refinement string (round {i + 1}):\n{refinement_string}")
+                    prompt = prompt_before_user + refinement_string + prompt_after_user
+
+                inputs = self.tokenizer([prompt], return_tensors="pt").to("cuda")
+
+            refined_response = response
+            #print(f"Final refined response for example {idx + 1}: {refined_response}")
+
+            # Print GPU memory usage after inference
+            print("GPU memory usage after inference:")
+            print_gpu_memory_usage()
+
+            # Store the final output
+            output_dict = {
+                'generated_fol_premises': generated_premises,
+                #'fol_context': batch_data.fol_contexts[idx],
+                'generated_fol_conclusion': generated_conclusion,
+                #'gold_conclusion': batch_data.fol_gold_questions[idx],
+                'gold_answer': batch_data.gold_answers[idx],
+                'example_id': batch_data.example_ids[idx],
+                'nl_context': batch_data.contexts[idx],
+                'nl_question': batch_data.questions[idx],
+                #'context_id': batch_data.context_ids[idx],
+                'prover_answer': prover_answer,
+                'prover_status': prover_status,
+                'prover_error': prover_error,
+                #'is_correct': is_correct,
+                'refined_response': refined_response,
+                'corrected_fol': corrected_fol
+            }
+
+            json_ms_marco.append(output_dict)
 
         return json_ms_marco
 
-    def run_fol_inference(self, premises, conclusion):
-        prover_answer, prover_status, prover_error, invalid_data = inference_on_generated_fol(premises, conclusion)
-        return prover_answer, prover_status, prover_error, invalid_data
 
-    def format_output(self, generated_premises, generated_conclusion, prover_answer, corrected_fol):
-        # Output formatting remains the same
-        return {
-            'generated_fol_premises': generated_premises,
-            'generated_fol_conclusion': generated_conclusion,
-            'prover_answer': prover_answer,
-            'corrected_fol': corrected_fol
-        }
 
     def translate(self):
+        """Main translation method."""
         dataset = self.load_data()
+
         json_output = []
         iterations = len(dataset) // self.batch_size
+
+        print(f'Starting translation from NL to FOL for {len(dataset)} examples...')
+
         for i in tqdm(range(iterations)):
             b_start = i * self.batch_size
             b_end = min((i + 1) * self.batch_size, len(dataset))
             batch = [dataset[j] for j in range(b_start, b_end)]
             batch_data = BatchData(batch)
+
+            print(f"\nProcessing batch sample {i}/{iterations}...")
             batch_fol_json = self.translate_batch(batch_data)
             json_output.extend(batch_fol_json)
+
             if i % 5 == 0:
+                print("Saving intermediate results...")
                 with open(self.output_filename, 'w', encoding='utf-8') as f:
                     json.dump(json_output, f, indent=4, ensure_ascii=False)
+
+        print("Saving final results...")
         with open(self.output_filename, 'w', encoding='utf-8') as f:
             json.dump(json_output, f, indent=4, ensure_ascii=False)
+
         self.cleanup()
 
     def cleanup(self):
+        """Clean up temporary files."""
         compiled_krb_dir = './compiled_krb'
         if os.path.exists(compiled_krb_dir):
+            print('Removing compiled_krb directory...')
             shutil.rmtree(compiled_krb_dir)
+
 
 # Example usage:
 if __name__ == '__main__':
