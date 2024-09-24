@@ -7,11 +7,11 @@ fi
 case $1 in
     run)
         # Run the docker container
-        docker run -v ./:/app/ --rm --gpus device=3 -d -it --name fol-container fol #device=0,1,$CUDA_VISIBLE_DEVICES
+        docker run -v ./:/app/ --rm --gpus device=1 -d -it --name fol-container1 fol #device=0,1,$CUDA_VISIBLE_DEVICES
         ;;
     exec)
         # Execute the models inside the docker container
-        docker exec -it fol-container bash      
+        docker exec -it fol-container1 bash      
         ;;
     build)
         # Build the docker
@@ -19,12 +19,12 @@ case $1 in
         ;;
     stop)
         # Stop the docker container
-        docker stop fol-container
+        docker stop fol-container1
         ;;
     remove)
         # Remove the docker container
-        docker stop fol-container &&
-        docker remove fol-container
+        docker stop fol-container1 &&
+        docker remove fol-container1
         ;;
     *)
         # Invalid argument
