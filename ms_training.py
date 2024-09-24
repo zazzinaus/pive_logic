@@ -30,10 +30,10 @@ with open("chunk1_0_300_corrected_ms.json", 'r') as f:
 
 # response_template = " ### Answer:"
 # collator = DataCollatorForCompletionOnlyLM(response_template, tokenizer=tokenizer)
-
-formatted_dataset = []
-for data in corrected_dataset:
-    prompt_text = f"""<|begin_of_text|>{{
+def formatting_prompts_func(example):
+    formatted_dataset = []
+    for data in example:
+            prompt_text = f"""<|begin_of_text|>{{
 Use the natuaral language and the first-order logic translation of contexts and question to answer the queries.
 Answer only in Natural Language with the response and nothing else.
 You are a helpful assistant.
@@ -52,16 +52,37 @@ You are a helpful assistant.
 ### Answer:
 }}
     """
+# formatted_dataset = []
+# for data in corrected_dataset:
+#     prompt_text = f"""<|begin_of_text|>{{
+# Use the natuaral language and the first-order logic translation of contexts and question to answer the queries.
+# Answer only in Natural Language with the response and nothing else.
+# You are a helpful assistant.
+# ### Contexts: 
+# {data['nl_context']}
+
+# ### FOL contexts translation: 
+# {data['generated_fol_premises']}
+
+# ### Question: 
+# {data['nl_question']}
+
+# ### FOL question traslation: 
+# {data['generated_fol_conclusion']}
+
+# ### Answer:
+# }}
+#     """
 
 
-    data['text'] = prompt_text  # Add the prompt to a new 'text' field
-    formatted_dataset.append(data)
+#     data['text'] = prompt_text  # Add the prompt to a new 'text' field
+#     formatted_dataset.append(data)
 
-output_json_path = "formatted_dataset.json"
-with open(output_json_path, 'w', encoding='utf-8') as f:
-    json.dump(formatted_dataset, f, indent=4, ensure_ascii=False)
+# output_json_path = "formatted_dataset.json"
+# with open(output_json_path, 'w', encoding='utf-8') as f:
+#     json.dump(formatted_dataset, f, indent=4, ensure_ascii=False)
 
-print(f"Formatted dataset saved to {output_json_path}")
+#print(f"Formatted dataset saved to {output_json_path}")
 #print(formatted_dataset[0]['text'])
 
 
@@ -122,7 +143,7 @@ trainer = SFTTrainer(
         fp16 = not is_bfloat16_supported(),
         bf16 = is_bfloat16_supported(),
         logging_steps = 1,
-        output_dir = "outputs",
+        output_dir = "tmp",
         optim = "adamw_8bit",
         seed = 3407,
     ),
