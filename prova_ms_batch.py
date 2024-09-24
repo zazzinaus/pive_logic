@@ -30,6 +30,7 @@ def parse_arguments():
     parser.add_argument('--sample_limit', type=int, default=-1, help='Limit number of samples to process (set to -1 for no limit)')
     parser.add_argument('--start_index', type=int, default=0, help='Start index for the dataset chunk')
     parser.add_argument('--end_index', type=int, default=-1, help='End index for the dataset chunk (set to -1 to process till the end)')
+    parser.add_argument('--continuous', type=bool, default=True, help='Flag to indicate if continuous inference should be performed')
     
     return parser.parse_args()
 
@@ -87,13 +88,14 @@ class BatchData:
         self.example_ids = [item['query_id'] for item in batch]
 
 class TranslatorEngine:
-    def __init__(self, dataset, output_filename, batch_size, sample_limit=None, start_index=0, end_index=-1):
+    def __init__(self, dataset, output_filename, batch_size, sample_limit=None, start_index=0, end_index=-1, continuous=True):
         self.dataset = dataset
         self.output_filename = output_filename
         self.batch_size = batch_size
         self.sample_limit = sample_limit
         self.start_index = start_index
         self.end_index = end_index
+        self.continuous = continuous
 
         self.max_seq_length = 2048
         self.dtype = torch.float16

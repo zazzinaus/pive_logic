@@ -1,4 +1,44 @@
+The `load_in_4bit` and `load_in_8bit` arguments are deprecated and will be removed in the future versions. Please, pass a `BitsAndBytesConfig` object in `quantization_config` argument instead.
+Loading tokenizer...
+Tokenizer loaded.
+Loading model...
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:04,  1.61s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:03<00:03,  1.54s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:04<00:01,  1.53s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:05<00:00,  1.11s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:05<00:00,  1.27s/it]
+Model loaded.
+Preparing model for LoRA...
+LoRA configuration applied.
+Moving model to GPU...
+Model ready.
+Instantiating FOLRefiner...
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:01<00:03,  1.59s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:02<00:01,  1.30s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.08s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.17s/it]
+FOLRefiner initialized.
+Loading dataset: chunk1.json...
+Loaded 8 examples from chunk 0 to 7 from chunk1.json.
+Starting translation from NL to FOL for 8 examples...
+  0%|          | 0/2 [00:00<?, ?it/s]Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+  0%|          | 0/2 [00:39<?, ?it/s]
+
+Processing batch 1/2...
+
+Processing batch, generating FOL translation...
+
+
+Refinement iteration 1 for the batch...
+Running inference on generated FOL for example 1/4...
+Parsing error: {'invalid_premises': ['∀x (∀y (InvitedTo(y) → NotIgnoring(y)))', '∀x (∀y (InvitedTo(y) → NotPuttingAside(y)))', '∀x (∀y (InvitedTo(y) → Informing(y)))'], 'invalid_conclusion': '∃x (∀y (InvitedTo(y) → Declining(x)))'}
+Running inference on generated FOL for example 2/4...
+Running inference on generated FOL for example 3/4...
+Parsing error: {'invalid_premises': ['∀x (HelloMaryLou(x) ⊕ (WrittenBy(GenePitney(x) ∨ WrittenBy(CayetMangiaracina(x))))', '∀x (HelloMaryLou(x) ⊕ RecordedBy(JohnnyDuncan(x)))', '∀x (HelloMaryLou(x) ⊕ RecordedBy(RickyNelson(x)))', '∀x (HelloMaryLou(x) ⊕ GuitarSolo(JamesBurton(x)))', '∀x (HelloMaryLou(x) ⊕ Piano(RayJohnson(x)))', '∀x (HelloMaryLou(x) ⊕ Bassist(JoeOsborne(x)))', '∀x (HelloMaryLou(x) ⊕ Drummer(RitchieFrost(x)))', '∀x (HelloMaryLou(x) ⊕ AppearsOn(RickIs2(x)))'], 'invalid_conclusion': 'RecordedBy(JohnnyD'}
+Running inference on generated FOL for example 4/4...
+Correcting FOL for example 1/4...
 Traceback (most recent call last):
-  File "/app/prova_ms_batch.py", line 10, in <module>
-    from symbolic_solvers.fol_solver.prover9_solver import FOL_Prover9_Program
-ModuleNotFoundError: No module named 'symbolic_solvers'
+  File "/app/prova_ms_batch.py", line 355, in <module>
+    engine.translate()
+  File "/app/prova_ms_batch.py", line 330, in translate
+    batch_fol_json = self.translate_batch(batch_data)
+  File "/app/prova_ms_batch.py", line 277, in translate_batch
+    corrected_fol = self.refiner.process_single_sample({
+  File "/app/correction.py", line 248, in process_single_sample
+    input_text = self.preprocess_sample(sample)
+  File "/app/correction.py", line 222, in preprocess_sample
+    gold_fol = f"FOL premises: \n{example['fol_context']}\n FOL conclusion: \n{example['gold_conclusion']}"
+KeyError: 'fol_context'
