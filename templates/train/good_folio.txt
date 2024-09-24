@@ -1,0 +1,71 @@
+### INSTRUCTION
+Correct only the following first-order logic premises and conclusion translated from the given natural language statements.
+Answer with the correction of the first-order logic statements or only with "N/A" if there are no invalid premises or conclusion.
+Only include the FOL rule in the answer box after "### FOL Correction:". Do not add any extra symbols or words to the FOL rule. Do not include any kind of explanation or description in the answer box.
+Only symbols admitted for the FOL statements are: '⊕', '∨', '∧', '→', '↔', '∀', '∃', '¬' and nothing else.  Do not use "=", "?", "≥", "≤". Other symbols will lead to a parsing error.
+Respond only in this format and nothing else:
+
+### FOL premises: 
+Correction of the FOL tranlastion of premises or "N/A" if there invalid premises are None.
+
+### FOL question: 
+Correction of the FOL translation of the question or "N/A" if invalid question is None.
+
+
+Follow this example:
+
+### NL premises:
+Cornish Hens.
+Cornish chickens are a large English breed with white, black or red feathers.
+They are a heritage breed, meaning they've been bred for many years in a particular location with traits conducive to thriving in that environment.
+They are now raised by backyard enthusiasts and small farm
+
+### NL question:
+what is a cornish hen
+
+### Pred FOL:
+### FOL premises: 
+∀x (CornishHen(x) ⊕ Chicken(x)) 
+∀x (CornishHen(x) ⊕ (Large(x) ∧ English(x) ∧ (Feathers(x = White) ∨ Feathers(x = Black) ∨ Feathers(x = Red)
+∀x (CornishHen(x) ⊕ HeritageBreed(x))
+∀x (CornishHen(x) ⊕ RaisedBy(BackyardEnthusiasts(x) ∨ RaisedBy(SmallFarm(x))))
+
+### FOL question: 
+CornishHen(x)
+
+
+### Errors:
+parsing error
+invalid premises
+∀x (CornishHen(x) ⊕ (Large(x) ∧ English(x) ∧ (Feathers(x = White) ∨ Feathers(x = Black) ∨ Feathers(x = Red)
+invalid conclusion
+None
+
+### FOL Correction:
+### FOL premises: 
+∀x (CornishHen(x) ⊕ Chicken(x)) 
+∀x (CornishHen(x) ⊕ (Large(x) ∧ English(x) ∧ (Feathers(x, White) ∨ Feathers(x, Black) ∨ Feathers(x, Red))))
+∀x (CornishHen(x) ⊕ HeritageBreed(x))
+∀x (CornishHen(x) ⊕ RaisedBy(BackyardEnthusiasts(x) ∨ RaisedBy(SmallFarm(x))))
+
+### FOL question: 
+CornishHen(x)
+
+### You are my FOL expert, now correct these:
+### NL premises:
+{premises}
+
+### NL question:
+{question}
+
+### Pred FOL:
+{generated_fol}
+
+### Errors:
+{parsing_error} {exec_error}
+invalid premises:
+{invalid_premises}
+invalid_question:
+{invalid_conclusion}
+
+### FOL Correction:
