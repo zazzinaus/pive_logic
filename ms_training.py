@@ -15,7 +15,7 @@ load_in_4bit = True
 
 
 corrected_dataset = []
-with open("final_ms_marco_out.json", 'r') as f:
+with open("chunk1_0_300_corrected_ms.json", 'r') as f:
     corrected_dataset = json.load(f)
 
 # Create a prompt string by iterating through the corrected dataset
@@ -37,20 +37,23 @@ for data in corrected_dataset:
 Use the natuaral language and the first-order logic translation of contexts and question to answer the queries.
 Answer only in Natural Language with the response and nothing else.
 You are a helpful assistant.
-Contexts: 
+### Contexts: 
 {data['nl_context']}
 
-FOL contexts translation: 
+### FOL contexts translation: 
 {data['generated_fol_premises']}
 
-Question: 
+### Question: 
 {data['nl_question']}
 
-FOL question traslation: 
+### FOL question traslation: 
 {data['generated_fol_conclusion']}
 
+### Answer:
 }}
     """
+
+
     data['text'] = prompt_text  # Add the prompt to a new 'text' field
     formatted_dataset.append(data)
 
@@ -115,7 +118,7 @@ trainer = SFTTrainer(
         per_device_train_batch_size = 2,
         gradient_accumulation_steps = 4,
         warmup_steps = 10,
-        max_steps = 5, #  it will override any value given in num_train_epochs
+        max_steps = 2, #  it will override any value given in num_train_epochs
         fp16 = not is_bfloat16_supported(),
         bf16 = is_bfloat16_supported(),
         logging_steps = 1,
@@ -147,9 +150,9 @@ print(f"Peak reserved memory for training = {used_memory_for_lora} GB.")
 print(f"Peak reserved memory % of max memory = {used_percentage} %.")
 print(f"Peak reserved memory for training % of max memory = {lora_percentage} %.")
 
-# Go to https://github.com/unslothai/unsloth/wiki for advanced tips like
-# (1) Saving to GGUF / merging to 16bit for vLLM
-# (2) Continued training from a saved LoRA adapter
-# (3) Adding an evaluation loop / OOMs
-# (4) Customized chat templates
+# # Go to https://github.com/unslothai/unsloth/wiki for advanced tips like
+# # (1) Saving to GGUF / merging to 16bit for vLLM
+# # (2) Continued training from a saved LoRA adapter
+# # (3) Adding an evaluation loop / OOMs
+# # (4) Customized chat templates
 
