@@ -5,21 +5,7 @@ Unsloth 2024.9.post1 patched 32 layers with 32 QKV layers, 32 O layers and 32 ML
 O^O/ \_/ \    Pytorch: 2.4.0+cu121. CUDA = 8.6. CUDA Toolkit = 12.1.
 \        /    Bfloat16 = TRUE. FA [Xformers = 0.0.27.post2. FA2 = False]
  "-____-"     Free Apache license: http://github.com/unslothai/unsloth
-Map:   0%|          | 0/16 [00:00<?, ? examples/s]Map:   0%|          | 0/16 [00:00<?, ? examples/s]
-Processing batch with 8 examples
-Example Prompts:
-["###Instruction:\nYou are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.\n### Passage:\nRemember that declining an invitation doesn't mean you're rejecting the person who sent it to you.\nIt's simply a statement that you are unable to attend whatever you've been invited to.\nHere are some tips on how to turn down an invitation in the most polite way: 1  Don't ignore the invitation.\n2  Putting the invitation aside to deal with later isn't good for you or the person who sent it.\n3  She needs to know whether or not you'll be there\n\n### Question:\nhow to politely turn down an invitation to visit someone out of town\n\n### Answer:\n", '###Instruction:\nYou are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.\n### Passage:\nThe cost of panniculectomy usually ranges from about $8,000 to $12,000 which is more than the cost of tummy tuck surgery.\nThis figure includes the surgeon’s fee, the facility fee, and the anesthesia fee.\nRecovery Time.\nMost panniculectomy patients spend at least one night in the hospital recovering.\nAfter returning home, it can take several months for the area to heal completely.\nDuring the initial recovery phase, lasting several weeks, you may experience swelling, bruising, and discomfort.\n\n### Question:\npannis removal cost\n\n### Answer:\n']
-Traceback (most recent call last):
-  File "/app/ms_eval.py", line 413, in <module>
-    dataset = dataset.map(generate_batch_responses, batched=True, batch_size=batch_size)
-  File "/usr/local/lib/python3.10/site-packages/datasets/arrow_dataset.py", line 560, in wrapper
-    out: Union["Dataset", "DatasetDict"] = func(self, *args, **kwargs)
-  File "/usr/local/lib/python3.10/site-packages/datasets/arrow_dataset.py", line 3035, in map
-    for rank, done, content in Dataset._map_single(**dataset_kwargs):
-  File "/usr/local/lib/python3.10/site-packages/datasets/arrow_dataset.py", line 3438, in _map_single
-    batch = apply_function_on_filtered_inputs(
-  File "/usr/local/lib/python3.10/site-packages/datasets/arrow_dataset.py", line 3300, in apply_function_on_filtered_inputs
-    processed_inputs = function(*fn_args, *additional_args, **fn_kwargs)
-  File "/app/ms_eval.py", line 373, in generate_batch_responses
-    inputs = tokenizer([prompts + EOS_TOKEN], return_tensors="pt", padding=True, truncation=True).to("cuda")
-TypeError: can only concatenate list (not "str") to list
+Map:   0%|          | 0/16 [00:00<?, ? examples/s]Map:  50%|█████     | 8/16 [00:22<00:22,  2.78s/ examples]Map: 100%|██████████| 16/16 [00:43<00:00,  2.72s/ examples]Map: 100%|██████████| 16/16 [00:43<00:00,  2.73s/ examples]
+Saved generated answers and queries to 'ms_qa_simple_batched.json'.
+Exact Match Score: 0.0
+ROUGE Scores: {'rouge1': 0.3865, 'rouge2': 0.3148, 'rougeL': 0.3686, 'rougeLsum': 0.3724}
