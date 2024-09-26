@@ -15,7 +15,7 @@ load_in_4bit = True
 
 
 corrected_dataset = []
-with open("chunk1.json", 'r') as f:
+with open("chunk2.json", 'r') as f:
     corrected_dataset = json.load(f)
 
 # Create a prompt string by iterating through the corrected dataset
@@ -88,7 +88,8 @@ trainer = SFTTrainer(
         per_device_train_batch_size = 2,
         gradient_accumulation_steps = 4,
         warmup_steps = 10,
-        max_steps = 5, #  it will override any value given in num_train_epochs
+        num_train_epochs = 3,
+        #max_steps = 5, #  it will override any value given in num_train_epochs
         fp16 = not is_bfloat16_supported(),
         bf16 = is_bfloat16_supported(),
         logging_steps = 1,
@@ -126,3 +127,5 @@ print(f"Peak reserved memory for training % of max memory = {lora_percentage} %.
 # (3) Adding an evaluation loop / OOMs
 # (4) Customized chat templates
 
+model.save_pretrained("base_lora_model") # Local saving
+tokenizer.save_pretrained("base_lora_model")

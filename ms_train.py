@@ -58,7 +58,7 @@ def formatting_prompts_func(examples):
 pass
 
 corrected_dataset = []
-with open("chunk1.json", 'r') as f:
+with open("chunk2.json", 'r') as f:
     corrected_dataset = json.load(f)
 
 corrected_dataset = Dataset.from_list(corrected_dataset)

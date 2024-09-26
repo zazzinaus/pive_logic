@@ -203,10 +203,10 @@ model = FastLanguageModel.get_peft_model(
 FastLanguageModel.for_inference(model)
 
 # Load the dataset
-with open("chunk1.json", 'r') as f:
+with open("chunk1_0_299_corrected_ms.json", 'r') as f:
     dataset = json.load(f)
 
-dataset = Dataset.from_list(dataset).select(range(300)) # first 300 of chunk1  or chunk1_0_299 for inference
+dataset = Dataset.from_list(dataset)#.select(range(10)) # first 300 of chunk1  or chunk1_0_299 for inference
 
 def extract_answer(response_text):
     """
@@ -223,14 +223,20 @@ def generate_batch_responses(examples):
     """
     prompts = [
         f"""###Instruction:
-You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.\n### Passage:
+You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage paired with the First-order Logic Translations.\n### Passage:
 {passage}
+### FOL Translation of passage: 
+{gen_fol_premises}
 
 ### Question:
 {query}
 
+### FOL Translation of question:
+{gen_fol_conclusion}
+
 ### Answer:
-""" for passage, query in zip(examples['selected_passages'], examples['query'])
+""" for passage, query, gen_fol_premises, gen_fol_conclusion in zip(examples['nl_context'], examples['nl_question'], examples['generated_fol_premises'], examples['generated_fol_conclusion'])
+#for passage, query, gen_fol_premises, gen_fol_conclusion in zip(examples['selected_passages'], examples['query'], examples['generated_fol_premises'], example['generated_fol_conclusion'])
     ]
     
     # Tokenize the input prompts for the batch
@@ -266,20 +272,20 @@ references = []
 
 for example in dataset:
     predictions.append(example['generated_answer'])
-    references.append(example['answers'])
+    references.append(example['gold_answer'])
     
     output_data.append({
-        "context": example['selected_passages'],
-        "query": example['query'],
+        "context": example['nl_context'],
+        "query": example['nl_question'],
         "generated_answer": example['generated_answer'],
-        "gold_answer": example['answers']
+        "gold_answer": example['gold_answer']
     })
 
 # Save generated answers and queries to a JSON file
-with open("no_train_qa_simple_base.json", "w") as outfile:
+with open("no_train_qa_fol_base.json", "w") as outfile:
     json.dump(output_data, outfile, indent=4)
 
-print("Saved generated answers and queries to 'no_train_qa_simple_base.json'.")
+print("Saved generated answers and queries to 'no_train_qa_fol_base.json'.")
 
 # Flatten references
 predictions_flattened = predictions
