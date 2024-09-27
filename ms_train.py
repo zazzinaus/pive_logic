@@ -22,13 +22,15 @@ with open("chunk2.json", 'r') as f:
 # Assume each data point in corrected_dataset has keys 'question' and 'answer'
 formatted_dataset = []
 for data in corrected_dataset:
-    prompt_text = f"""###Contexts: 
+    prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.<|eot_id|><|start_header_id|>user<|end_header_id|>
+### Passage:
 {data['selected_passages']}
 
-### Question: 
-{data['query']}
+### Question:
+{data['query']}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 
-### Answer:{data['answers']}
+### Answer: {data['answers']}
     """
     data['text'] = prompt_text  # Add the prompt to a new 'text' field
     formatted_dataset.append(data)
@@ -46,12 +48,12 @@ print(f"Formatted dataset saved to {output_json_path}")
 dataset = Dataset.from_pandas(pd.DataFrame(formatted_dataset))
 
 
-print(dataset[0])
+#print(dataset[0])
 
 
 # Load model and tokenizer
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name = "unsloth/Meta-Llama-3.1-8B",
+    model_name = "unsloth/Meta-Llama-3.1-8B-Instruct",
     max_seq_length = max_seq_length,
     dtype = dtype,
     load_in_4bit = load_in_4bit,
