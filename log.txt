@@ -5,7 +5,71 @@ Unsloth 2024.9.post1 patched 32 layers with 32 QKV layers, 32 O layers and 32 ML
 O^O/ \_/ \    Pytorch: 2.4.0+cu121. CUDA = 8.6. CUDA Toolkit = 12.1.
 \        /    Bfloat16 = TRUE. FA [Xformers = 0.0.27.post2. FA2 = False]
  "-____-"     Free Apache license: http://github.com/unslothai/unsloth
-Map:   0%|          | 0/300 [00:00<?, ? examples/s]Map:   3%|▎         | 8/300 [00:10<06:36,  1.36s/ examples]Map:   5%|▌         | 16/300 [00:20<06:08,  1.30s/ examples]Map:   8%|▊         | 24/300 [00:31<05:54,  1.28s/ examples]Map:  11%|█         | 32/300 [00:41<05:42,  1.28s/ examples]Map:  13%|█▎        | 40/300 [00:49<05:12,  1.20s/ examples]Map:  16%|█▌        | 48/300 [00:59<05:07,  1.22s/ examples]Map:  19%|█▊        | 56/300 [01:10<05:08,  1.27s/ examples]Map:  21%|██▏       | 64/300 [01:21<05:02,  1.28s/ examples]Map:  24%|██▍       | 72/300 [01:32<04:57,  1.31s/ examples]Map:  27%|██▋       | 80/300 [01:43<04:54,  1.34s/ examples]Map:  29%|██▉       | 88/300 [01:54<04:45,  1.35s/ examples]Map:  32%|███▏      | 96/300 [02:04<04:30,  1.32s/ examples]Map:  35%|███▍      | 104/300 [02:14<04:17,  1.32s/ examples]Map:  37%|███▋      | 112/300 [02:25<04:08,  1.32s/ examples]Map:  40%|████      | 120/300 [02:36<03:59,  1.33s/ examples]Map:  43%|████▎     | 128/300 [02:46<03:47,  1.32s/ examples]Map:  45%|████▌     | 136/300 [02:57<03:35,  1.31s/ examples]Map:  48%|████▊     | 144/300 [03:03<02:59,  1.15s/ examples]Map:  51%|█████     | 152/300 [03:14<02:59,  1.21s/ examples]Map:  53%|█████▎    | 160/300 [03:24<02:53,  1.24s/ examples]Map:  56%|█████▌    | 168/300 [03:35<02:46,  1.26s/ examples]Map:  59%|█████▊    | 176/300 [03:44<02:35,  1.25s/ examples]Map:  61%|██████▏   | 184/300 [03:55<02:26,  1.26s/ examples]Map:  64%|██████▍   | 192/300 [04:06<02:20,  1.30s/ examples]Map:  67%|██████▋   | 200/300 [04:16<02:10,  1.30s/ examples]Map:  69%|██████▉   | 208/300 [04:25<01:53,  1.24s/ examples]Map:  72%|███████▏  | 216/300 [04:35<01:45,  1.26s/ examples]Map:  75%|███████▍  | 224/300 [04:46<01:37,  1.28s/ examples]Map:  77%|███████▋  | 232/300 [04:57<01:28,  1.29s/ examples]Map:  80%|████████  | 240/300 [05:07<01:17,  1.28s/ examples]Map:  83%|████████▎ | 248/300 [05:17<01:07,  1.29s/ examples]Map:  85%|████████▌ | 256/300 [05:27<00:56,  1.29s/ examples]Map:  88%|████████▊ | 264/300 [05:38<00:46,  1.29s/ examples]Map:  91%|█████████ | 272/300 [05:49<00:36,  1.31s/ examples]Map:  93%|█████████▎| 280/300 [05:59<00:26,  1.31s/ examples]Map:  96%|█████████▌| 288/300 [06:10<00:15,  1.32s/ examples]Map:  99%|█████████▊| 296/300 [06:20<00:05,  1.32s/ examples]Map: 100%|██████████| 300/300 [06:30<00:00,  1.49s/ examples]Map: 100%|██████████| 300/300 [06:30<00:00,  1.30s/ examples]
-Saved generated answers and queries to 'no_train_qa_fol_base.json'.
-Exact Match Score: 0.013333333333333334
-ROUGE Scores: {'rouge1': 0.1922, 'rouge2': 0.1191, 'rougeL': 0.1843, 'rougeLsum': 0.185}
+Map:   0%|          | 0/16 [00:00<?, ? examples/s]Map:  50%|█████     | 8/16 [00:05<00:05,  1.53 examples/s]Map: 100%|██████████| 16/16 [00:08<00:00,  2.03 examples/s]Map: 100%|██████████| 16/16 [00:08<00:00,  1.93 examples/s]
+Sample 1:
+Generated Answer: Don't ignore the invitation.
+Gold Answer: 1 Don't ignore the invitation.2 Don't wait. 3 Be thankful. 4 Be honest. 5 Ask for a different time. 6 Don't over-explain. 7 Send something.t's simply a statement that you are unable to attend whatever you've been invited to.
+--------------------------------------------------
+Sample 2:
+Generated Answer: The cost of panniculectomy, also known as pannus removal, is typically between $8,000 to $12,000.
+Gold Answer: About $8,000 to $12,000.
+--------------------------------------------------
+Sample 3:
+Generated Answer: Johnny Duncan originally sang "Hello Mary Lou".
+Gold Answer: Ricky Nelson First recorded by Johnny Duncan in 1960, and later by Ricky Nelson in 1961.
+--------------------------------------------------
+Sample 4:
+Generated Answer: The epidermis.
+Gold Answer: The epidermis. Epidermis
+--------------------------------------------------
+Sample 5:
+Generated Answer: To be an endocrinologist, you'll need to earn a Doctor of Medicine (MD) degree, which requires four years of medical school after a bachelor's degree.
+Gold Answer: To become an endocrinologist, you'll need to earn a bachelor's degree that includes substantial coursework in biology, physics and chemistry. You'll also need to take the Medical College Admission Test (MCAT) and apply to a Doctor of Medicine (MD) program at an accredited medical school.
+--------------------------------------------------
+Sample 6:
+Generated Answer: You should avoid eating undercooked animal foods such as rare meat, raw oysters, clams, sushi, unpasteurized eggs, raw cookie or cake dough, and homemade eggnog, unpasteurized dairy foods, raw milk, and dairy products made from unpasteurized milk.
+Gold Answer: Undercooked animal foods such as rare meat,raw oysters,clams,sushi,unpasteurized eggs,raw cookie or cake dough and homemade eggnog.
+--------------------------------------------------
+Sample 7:
+Generated Answer: A housekeeping manager makes around $30,000 to $40,000 a year.
+Gold Answer: Around 30,000 to 40,000 dollars a year.
+--------------------------------------------------
+Sample 8:
+Generated Answer: The purpose of a broker is to represent clients to buy or sell stocks and other securities.
+Gold Answer: The term is applied to both companies that deal in securities and their employees, who technically are registered representatives working for the brokerage.
+--------------------------------------------------
+Sample 9:
+Generated Answer: According to the passage, you need about 0.36 grams of protein per 1 pound of body weight per day to maintain your body's current muscle mass.
+Gold Answer: 0.36 grams of protein per 1 pound
+--------------------------------------------------
+Sample 10:
+Generated Answer: The passage does not mention the cost of moving a static caravan. It only discusses the annual site fees, which vary between £2500 to over £6000 per year.
+Gold Answer: £2500 per year.
+--------------------------------------------------
+Sample 11:
+Generated Answer: The difference between weight and mass is that mass is the amount of matter in a material, while weight is a measure of how the force of gravity acts upon that mass.
+Gold Answer: The difference between mass and weight is that mass is the amount of matter in a material and weight is a measure of how the force of gravity acts upon that mass. Mass is the measure of the amount of matter in a body.
+--------------------------------------------------
+Sample 12:
+Generated Answer: The passage does not mention the cost of attending the University of Michigan. It provides information about the cost of attending Michigan State University and compares it to the national average and the average Michigan tuition.
+Gold Answer: $13,200 per year
+--------------------------------------------------
+Sample 13:
+Generated Answer: Spider monkeys have four curved fingers that look like a hook and a long tail, shaped like a spider.
+Gold Answer: Spider monkeys has  four fingers are curved and look like a hook, which is special adaptation to the life in the forest.
+--------------------------------------------------
+Sample 14:
+Generated Answer: $61,000
+Gold Answer: $61,000
+--------------------------------------------------
+Sample 15:
+Generated Answer: Dark leafy greens, nuts, seeds, fish, beans, whole grains, avocados, yogurt, bananas, dried fruit, and dark chocolate.
+Gold Answer: Dark leafy greens, nuts, seeds, fish, beans, whole grains, avocados, yogurt, bananas, dried fruit, dark chocolate.
+--------------------------------------------------
+Sample 16:
+Generated Answer: Slimware is a line of casual dinnerware.
+Gold Answer: A unique line of casual dinnerware with an emphasis on portion consciousness fused with elegant yet convenient dining.
+--------------------------------------------------
+Saved generated answers and queries to 'no_train_qa_simple_base.json'.
+Exact Match Score: 0.0625
+ROUGE Scores: {'rouge1': 0.5088, 'rouge2': 0.4182, 'rougeL': 0.4933, 'rougeLsum': 0.4908}
