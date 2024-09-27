@@ -184,7 +184,7 @@ max_seq_length = 2048
 dtype = None
 load_in_4bit = True
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name="unsloth/Meta-Llama-3.1-8B",
+    model_name="unsloth/Meta-Llama-3.1-8B-Instruct",
     max_seq_length=max_seq_length,
     dtype=dtype,
     load_in_4bit=load_in_4bit,
@@ -206,7 +206,7 @@ FastLanguageModel.for_inference(model)
 with open("chunk1_0_299_corrected_ms.json", 'r') as f:
     dataset = json.load(f)
 
-dataset = Dataset.from_list(dataset)#.select(range(10)) # first 300 of chunk1  or chunk1_0_299 for inference
+dataset = Dataset.from_list(dataset)#.select(range(16)) # first 300 of chunk1  or chunk1_0_299 for inference
 
 def extract_answer(response_text):
     """
@@ -222,9 +222,13 @@ def generate_batch_responses(examples):
     Generate responses in batches.
     """
     prompts = [
-        f"""###Instruction:
-You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage paired with the First-order Logic Translations.\n### Passage:
+        f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are given a question and a selected passage that provides context. 
+Provide a clear and concise answer to the question using only the information from the passage paired with the First-order Logic Translations.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+### Passage:
 {passage}
+
 ### FOL Translation of passage: 
 {gen_fol_premises}
 
@@ -232,7 +236,7 @@ You are given a question and a selected passage that provides context. Provide a
 {query}
 
 ### FOL Translation of question:
-{gen_fol_conclusion}
+{gen_fol_conclusion}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 
 ### Answer:
 """ for passage, query, gen_fol_premises, gen_fol_conclusion in zip(examples['nl_context'], examples['nl_question'], examples['generated_fol_premises'], examples['generated_fol_conclusion'])

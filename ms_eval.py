@@ -184,7 +184,7 @@ max_seq_length = 2048
 dtype = None
 load_in_4bit = True
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name="unsloth/Meta-Llama-3.1-8B",
+    model_name="unsloth/Meta-Llama-3.1-8B-Instruct",
     max_seq_length=max_seq_length,
     dtype=dtype,
     load_in_4bit=load_in_4bit,
@@ -217,17 +217,19 @@ def extract_answer(response_text):
         return response_text[answer_start + len("### Answer:"):].strip()
     return "N/A"
 
+
 def generate_batch_responses(examples):
     """
     Generate responses in batches.
     """
     prompts = [
-        f"""###Instruction:
-You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.\n### Passage:
+        f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.<|eot_id|><|start_header_id|>user<|end_header_id|>
+### Passage:
 {passage}
 
 ### Question:
-{query}
+{query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 
 ### Answer:
 """ for passage, query in zip(examples['selected_passages'], examples['query'])
@@ -258,6 +260,13 @@ You are given a question and a selected passage that provides context. Provide a
 # Batch process the dataset
 batch_size = 8 
 dataset = dataset.map(generate_batch_responses, batched=True, batch_size=batch_size)
+
+for i, example in enumerate(dataset):
+    print(f"Sample {i + 1}:")
+    print(f"Generated Answer: {example['generated_answer']}")
+    print(f"Gold Answer: {example['answers']}")
+    print("-" * 50)
+
 
 # Prepare to save data into a JSON file
 output_data = []
