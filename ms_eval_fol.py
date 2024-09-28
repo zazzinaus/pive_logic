@@ -372,6 +372,45 @@ with open("chunk1_0_299_corrected_ms.json", 'r') as f:
 dataset = Dataset.from_list(dataset)
 
 
+# def extract_fol_parts(refined_response):
+#     """
+#     Extracts FOL premises and FOL conclusion from the refined_response.
+    
+#     refined_response: The string containing FOL premises and conclusion.
+#     Returns:
+#         - gen_fol_premises: Everything between "FOL premises" and "FOL question"
+#         - gen_fol_conclusion: Everything after "FOL question", and trims "###" if present.
+#     """
+
+#     # Default to "N/A" in case parts are not found
+#     gen_fol_premises = "N/A"
+#     gen_fol_conclusion = "N/A"
+
+#     premises_start = refined_response.find("FOL premises:")
+
+#     if premises_start != -1:
+#         # Look for FOL question and trim ### if present
+#         question_start = refined_response.find("FOL question:", premises_start)
+#         if question_start == -1:
+#             question_start = refined_response.find("### FOL question:", premises_start)
+        
+#         if question_start != -1:
+#             # Extract FOL premises and conclusion
+#             gen_fol_premises = refined_response[premises_start + len("FOL premises:"):question_start].strip()
+
+#             # Trim "###" from conclusion if present
+#             conclusion_start = question_start + len("FOL question:")
+#             gen_fol_conclusion = refined_response[conclusion_start:].strip()
+#             if gen_fol_conclusion.startswith("###"):
+#                 gen_fol_conclusion = gen_fol_conclusion[3:].strip()
+
+#     print(gen_fol_premises)
+#     print(gen_fol_conclusion)
+#     return gen_fol_premises, gen_fol_conclusion
+
+
+
+
 
 def extract_fol_parts(refined_response):
     """
@@ -397,6 +436,8 @@ def extract_fol_parts(refined_response):
             gen_fol_premises = refined_response[premises_start + len("FOL premises:"):question_start].strip()
             gen_fol_conclusion = refined_response[question_start + len("FOL question:"):].strip()
 
+    print(gen_fol_premises)
+    print(gen_fol_conclusion)
     return gen_fol_premises, gen_fol_conclusion
 
 
