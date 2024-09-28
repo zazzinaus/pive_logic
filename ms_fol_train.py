@@ -18,25 +18,58 @@ with open("corrected_chunk2_complete.jsonl", 'r') as f:
     for line in f:
         corrected_dataset.append(json.loads(line.strip()))
 
-# Create a prompt string by iterating through the corrected dataset
-# Assume each data point in corrected_dataset has keys 'question' and 'answer'
+
+def extract_fol_parts(refined_response):
+    """
+    Extracts FOL premises and FOL conclusion from the refined_response.
+    
+    refined_response: The string containing FOL premises and conclusion.
+    Returns:
+        - gen_fol_premises: Everything between "FOL premises" and "FOL question"
+        - gen_fol_conclusion: Everything after "FOL question"
+    """
+
+    # Default to "N/A" in case parts are not found
+    gen_fol_premises = "N/A"
+    gen_fol_conclusion = "N/A"
+
+    premises_start = refined_response.find("FOL premises:")
+
+    if premises_start != -1:
+        question_start = refined_response.find("FOL question:", premises_start)
+    
+        if question_start != -1:
+        # Extract FOL premises and conclusion
+            gen_fol_premises = refined_response[premises_start + len("FOL premises:"):question_start].strip()
+            gen_fol_conclusion = refined_response[question_start + len("FOL question:"):].strip()
+
+    return gen_fol_premises, gen_fol_conclusion
+
+
+
 formatted_dataset = []
 for data in corrected_dataset:
-    prompt_text = f"""You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage paired with the First-order Logic Translations
-### Passage: 
+    gen_fol_premises, gen_fol_conclusion = extract_fol_parts(data['refined_response'])
+
+    prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+You are given a question and a selected passage that provides context. 
+Provide a clear and concise answer in natural language to the question using only the information from the passage paired with the First-order Logic Translations.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+### Passage:
 {data['nl_context']}
 
 ### FOL Translation of Passage:
-{data['generated_fol_premises']}
+{gen_fol_premises}
 
 ### Question: 
 {data['nl_question']}
 
 ### FOL Translation of Question:
-{data['generated_fol_conclusion']}
+{gen_fol_conclusion}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 
-### Answer:{data['gold_answer']}
-    """
+### Answer:{data['gold_answer']}<|end_of_text|>
+"""
     data['text'] = prompt_text  # Add the prompt to a new 'text' field
     formatted_dataset.append(data)
 
@@ -53,12 +86,12 @@ print(f"Formatted dataset saved to {output_json_path}")
 dataset = Dataset.from_pandas(pd.DataFrame(formatted_dataset))
 
 
-print(dataset[0])
+#print(dataset[0])
 
 
 # Load model and tokenizer
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name = "unsloth/Meta-Llama-3.1-8B",
+    model_name = "unsloth/Meta-Llama-3.1-8B-Instruct",
     max_seq_length = max_seq_length,
     dtype = dtype,
     load_in_4bit = load_in_4bit,
@@ -95,7 +128,7 @@ trainer = SFTTrainer(
         per_device_train_batch_size = 2,
         gradient_accumulation_steps = 4,
         warmup_steps = 10,
-        num_train_epochs = 3,
+        num_train_epochs = 5,
         #max_steps = 5, #  it will override any value given in num_train_epochs
         fp16 = not is_bfloat16_supported(),
         bf16 = is_bfloat16_supported(),

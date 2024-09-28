@@ -65,17 +65,33 @@ def extract_answer(response_text):
         return response_text[answer_start + len("### Answer:"):].strip()
     return "N/A"
 
+# def generate_batch_responses(examples):
+#     """
+#     Generate responses in batches.
+#     """
+#     prompts = [
+#         f"""###Instruction:
+# You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.\n### Passage:
+# {passage}
+
+# ### Question:
+# {query}
+
+# ### Answer:
+# """ for passage, query in zip(examples['selected_passages'], examples['query'])
+#     ]
 def generate_batch_responses(examples):
     """
     Generate responses in batches.
     """
     prompts = [
-        f"""###Instruction:
-You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.\n### Passage:
+        f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.<|eot_id|><|start_header_id|>user<|end_header_id|>
+### Passage:
 {passage}
 
 ### Question:
-{query}
+{query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 
 ### Answer:
 """ for passage, query in zip(examples['selected_passages'], examples['query'])

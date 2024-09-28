@@ -13,44 +13,6 @@ max_seq_length = 2048 # Choose any! We auto support RoPE Scaling internally!
 dtype = None
 load_in_4bit = True
 
-
-corrected_dataset = []
-with open("chunk2.json", 'r') as f:
-    corrected_dataset = json.load(f)
-
-# Create a prompt string by iterating through the corrected dataset
-# Assume each data point in corrected_dataset has keys 'question' and 'answer'
-formatted_dataset = []
-for data in corrected_dataset:
-    prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.<|eot_id|><|start_header_id|>user<|end_header_id|>
-### Passage:
-{data['selected_passages']}
-
-### Question:
-{data['query']}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
-
-### Answer: {data['answers']}
-    """
-    data['text'] = prompt_text  # Add the prompt to a new 'text' field
-    formatted_dataset.append(data)
-
-output_json_path = "formatted_dataset.json"
-with open(output_json_path, 'w', encoding='utf-8') as f:
-    json.dump(formatted_dataset, f, indent=4, ensure_ascii=False)
-
-print(f"Formatted dataset saved to {output_json_path}")
-#print(formatted_dataset[0]['text'])
-
-
-
-# Convert the list of dictionaries to a Huggingface Dataset
-dataset = Dataset.from_pandas(pd.DataFrame(formatted_dataset))
-
-
-#print(dataset[0])
-
-
 # Load model and tokenizer
 model, tokenizer = FastLanguageModel.from_pretrained(
     model_name = "unsloth/Meta-Llama-3.1-8B-Instruct",
@@ -58,6 +20,8 @@ model, tokenizer = FastLanguageModel.from_pretrained(
     dtype = dtype,
     load_in_4bit = load_in_4bit,
 )
+
+EOS_TOKEN = tokenizer.eos_token # Must add EOS_TOKEN
 
 # Do model patching and add fast LoRA weights
 model = FastLanguageModel.get_peft_model(
@@ -76,6 +40,42 @@ model = FastLanguageModel.get_peft_model(
     loftq_config = None, # And LoftQ
 )
 
+corrected_dataset = []
+with open("chunk2.json", 'r') as f:
+    corrected_dataset = json.load(f)
+
+# Create a prompt string by iterating through the corrected dataset
+# Assume each data point in corrected_dataset has keys 'question' and 'answer'
+formatted_dataset = []
+for data in corrected_dataset:
+    prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.<|eot_id|><|start_header_id|>user<|end_header_id|>
+### Passage:
+{data['selected_passages']}
+
+### Question:
+{data['query']}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+### Answer: {data['answers']}<|end_of_text|>
+"""
+    data['text'] = prompt_text  # Add the prompt to a new 'text' field
+    formatted_dataset.append(data)
+
+output_json_path = "formatted_dataset.json"
+with open(output_json_path, 'w', encoding='utf-8') as f:
+    json.dump(formatted_dataset, f, indent=4, ensure_ascii=False)
+
+print(f"Formatted dataset saved to {output_json_path}")
+#print(formatted_dataset[0]['text'])
+
+
+
+# Convert the list of dictionaries to a Huggingface Dataset
+dataset = Dataset.from_pandas(pd.DataFrame(formatted_dataset))
+
+
+#print(dataset[0])
+
 response_template = "### Answer:"
 collator = DataCollatorForCompletionOnlyLM(response_template, tokenizer=tokenizer)
 
@@ -90,7 +90,7 @@ trainer = SFTTrainer(
         per_device_train_batch_size = 2,
         gradient_accumulation_steps = 4,
         warmup_steps = 10,
-        num_train_epochs = 3,
+        num_train_epochs = 5,
         #max_steps = 5, #  it will override any value given in num_train_epochs
         fp16 = not is_bfloat16_supported(),
         bf16 = is_bfloat16_supported(),
@@ -131,3 +131,9 @@ print(f"Peak reserved memory for training % of max memory = {lora_percentage} %.
 
 model.save_pretrained("base_lora_model") # Local saving
 tokenizer.save_pretrained("base_lora_model")
+
+
+
+
+
+

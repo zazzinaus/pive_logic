@@ -36,6 +36,35 @@ with open("chunk1_0_299_corrected_ms.json", 'r') as f:
 
 dataset = Dataset.from_list(dataset)#.select(range(10)) # first 300 of chunk1  or chunk1_0_299 for inference
 
+
+def extract_fol_parts(refined_response):
+    """
+    Extracts FOL premises and FOL conclusion from the refined_response.
+    
+    refined_response: The string containing FOL premises and conclusion.
+    Returns:
+        - gen_fol_premises: Everything between "FOL premises" and "FOL question"
+        - gen_fol_conclusion: Everything after "FOL question"
+    """
+
+    # Default to "N/A" in case parts are not found
+    gen_fol_premises = "N/A"
+    gen_fol_conclusion = "N/A"
+
+    premises_start = refined_response.find("FOL premises:")
+
+    if premises_start != -1:
+        question_start = refined_response.find("FOL question:", premises_start)
+    
+        if question_start != -1:
+        # Extract FOL premises and conclusion
+            gen_fol_premises = refined_response[premises_start + len("FOL premises:"):question_start].strip()
+            gen_fol_conclusion = refined_response[question_start + len("FOL question:"):].strip()
+
+    return gen_fol_premises, gen_fol_conclusion
+
+
+
 def extract_answer(response_text):
     """
     Extracts the text after '### Answer:' from the generated response.
@@ -45,27 +74,58 @@ def extract_answer(response_text):
         return response_text[answer_start + len("### Answer:"):].strip()
     return "N/A"
 
+
 def generate_batch_responses(examples):
     """
     Generate responses in batches.
     """
-    prompts = [
-        f"""###Instruction:
-You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage paired with the First-order Logic Translations.\n### Passage:
-{passage}
+    prompts = []
+    for refined_response, nl_context, nl_question in zip(examples['refined_response'], examples['nl_context'], examples['nl_question']):
+        # Extract FOL premises and conclusion from refined_response
+        gen_fol_premises, gen_fol_conclusion = extract_fol_parts(refined_response)
+        
+
+        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are given a question and a selected passage that provides context. 
+Provide a clear and concise answer in natural language to the question using only the information from the passage paired with the First-order Logic Translations.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+### Passage: 
+{nl_context}
+
 ### FOL Translation of passage: 
 {gen_fol_premises}
 
 ### Question:
-{query}
+{nl_question}
 
 ### FOL Translation of question:
-{gen_fol_conclusion}
+{gen_fol_conclusion}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 
 ### Answer:
-""" for passage, query, gen_fol_premises, gen_fol_conclusion in zip(examples['nl_context'], examples['nl_question'], examples['generated_fol_premises'], examples['generated_fol_conclusion'])
-#for passage, query, gen_fol_premises, gen_fol_conclusion in zip(examples['selected_passages'], examples['query'], examples['generated_fol_premises'], example['generated_fol_conclusion'])
-    ]
+"""
+        prompts.append(prompt)
+
+# def generate_batch_responses(examples):
+#     """
+#     Generate responses in batches.
+#     """
+#     prompts = [
+#         f"""###Instruction:
+# You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage paired with the First-order Logic Translations.\n### Passage:
+# {passage}
+# ### FOL Translation of passage: 
+# {gen_fol_premises}
+
+# ### Question:
+# {query}
+
+# ### FOL Translation of question:
+# {gen_fol_conclusion}
+
+# ### Answer:
+# """ for passage, query, gen_fol_premises, gen_fol_conclusion in zip(examples['nl_context'], examples['nl_question'], examples['generated_fol_premises'], examples['generated_fol_conclusion'])
+# #for passage, query, gen_fol_premises, gen_fol_conclusion in zip(examples['selected_passages'], examples['query'], examples['generated_fol_premises'], example['generated_fol_conclusion'])
+#    ]
     
     # Tokenize the input prompts for the batch
     inputs = tokenizer(prompts, return_tensors="pt", padding=True, truncation=True).to("cuda")
@@ -105,15 +165,16 @@ for example in dataset:
     output_data.append({
         "context": example['nl_context'],
         "query": example['nl_question'],
+        "fol_translation": example['refined_response'],
         "generated_answer": example['generated_answer'],
         "gold_answer": example['gold_answer']
     })
 
 # Save generated answers and queries to a JSON file
-with open("no_train_qa_fol_base.json", "w") as outfile:
+with open("train_qa_fol_base.json", "w") as outfile:
     json.dump(output_data, outfile, indent=4)
 
-print("Saved generated answers and queries to 'no_train_qa_fol_base.json'.")
+print("Saved generated answers and queries to 'train_qa_fol_base.json'.")
 
 # Flatten references
 predictions_flattened = predictions
