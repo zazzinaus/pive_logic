@@ -281,15 +281,12 @@ Yes<|eot_id|><|start_header_id|>user<|end_header_id|>
     elif prompt_type == 3:
         # Fourth prompt: Focus on critical reasoning
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-You are given a question and a selected passage that provides context. 
-Provide a clear answer in natural language to the question. Always provide a step-by-step reasoning and  use the information from the passage paired with the First-order Logic Translations.
+You are given a question and a selected passage that provides context. Always show a step-by-step reasoning and provide a clear answer in natural language to the question.
+Always use the information from the passage paired with the First-order Logic Translations.
 
 Answer only in this format:
 ### Answer:
-correct answer in natural language
-
-### Reasoning:
-step by step reasoning which lead to the answer
+{{"answer": "corrected answer", "reasoning": "step by step reasoning""}}
 
 Follow this example:
 
@@ -314,16 +311,12 @@ what is lactic acid
 LacticAcid(x)
 
 ### Answer: 
-It is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria.
-
-### Reasoning:
-The question asks for a definition of lactic acid.
+{{"answer": "It is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria.", "reasoning": The question asks for a definition of lactic acid.
 The FOL translation of the question is LacticAcid(x), seeking the nature of lactic acid.
 The passage describes lactic acid as a compound formed from glucose in living creatures or bacteria.
 The relevant FOL statement is: ∀x (LacticAcid(x) ⊕ (Compound(x) ∧ FormedFromGlucose(x) ∧ FormedUnderConditions(x, LivingCreature(x) ∨ Bacteria(x)))).
 This FOL expression confirms that lactic acid is a compound formed under certain conditions.
-Other FOL statements are not directly related to the definition.
-Therefore, the answer is: "It is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria.<|eot_id|><|start_header_id|>user<|end_header_id|>
+Other FOL statements are not directly related to the definition.}}<|eot_id|><|start_header_id|>user<|end_header_id|>
 
 ### Passage: 
 {nl_context}
@@ -392,7 +385,7 @@ def generate_batch_responses(examples, prompt_type):
     
     # Decode and extract the generated answers
     decoded_outputs = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-    #print("\nFull model outputs:\n", decoded_outputs)
+    print("\nFull model outputs:\n", decoded_outputs)
     
     generated_answers = [extract_answer(output, prompt_type) for output in decoded_outputs]
     
@@ -411,7 +404,7 @@ def generate_batch_responses(examples, prompt_type):
 with open("chunk1_0_299_corrected_ms.json", 'r') as f:
     dataset = json.load(f)
 
-dataset = Dataset.from_list(dataset)#.select(range(10)) # first 300 of chunk1  or chunk1_0_299 for inference
+dataset = Dataset.from_list(dataset).select(range(8)) # first 300 of chunk1  or chunk1_0_299 for inference
 
 # Batch process the dataset
 batch_size = 8 

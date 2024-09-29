@@ -205,51 +205,48 @@ model = FastLanguageModel.get_peft_model(
 )
 
 FastLanguageModel.for_inference(model)
+
 def extract_answer(response_text, prompt_type):
     """
     Extracts the text after the nth occurrence of '### Answer:' based on prompt_type.
-    - If prompt_type is 0, it extracts the text after the first occurrence.
-    - If prompt_type is 1, it extracts the text after the second occurrence.
-    - If prompt_type is 2, it extracts the text after the third occurrence.
-    - If prompt_type is 3, it extracts the text after the fourth occurrence.
+    - If prompt_type is 0, 1, or 2, it extracts the text after the nth occurrence.
+    - If prompt_type is 3, it extracts the text after the third occurrence of '### Answer:' and 
+      also the reasoning part, which is located after '### Reasoning:'.
+      
+    Returns:
+    - A tuple (answer, reasoning) where reasoning is None for prompt types 0, 1, 2.
     """
-    if prompt_type == 0:
-        # Extract the first occurrence of '### Answer:'
-        answer_start = response_text.find("### Answer:")
+    def find_nth_occurrence(text, substring, n):
+        """Helper function to find the nth occurrence of a substring in a text."""
+        pos = -1
+        for _ in range(n):
+            pos = text.find(substring, pos + 1)
+            if pos == -1:
+                break
+        return pos
+    
+    if prompt_type in [0, 1, 2]:
+        # Find the nth occurrence of '### Answer:' based on prompt_type
+        answer_start = find_nth_occurrence(response_text, "### Answer:", prompt_type + 1)
         if answer_start != -1:
-            return response_text[answer_start + len("### Answer:"):].strip()
+            return response_text[answer_start + len("### Answer:"):].strip(), None
         
-    elif prompt_type == 1:
-        # Extract the second occurrence of '### Answer:'
-        first_answer_start = response_text.find("### Answer:")
-        if first_answer_start != -1:
-            second_answer_start = response_text.find("### Answer:", first_answer_start + len("### Answer:"))
-            if second_answer_start != -1:
-                return response_text[second_answer_start + len("### Answer:"):].strip()
-    
-    elif prompt_type == 2:
-        # Extract the third occurrence of '### Answer:'
-        first_answer_start = response_text.find("### Answer:")
-        if first_answer_start != -1:
-            second_answer_start = response_text.find("### Answer:", first_answer_start + len("### Answer:"))
-            if second_answer_start != -1:
-                third_answer_start = response_text.find("### Answer:", second_answer_start + len("### Answer:"))
-                if third_answer_start != -1:
-                    return response_text[third_answer_start + len("### Answer:"):].strip()
-    
     elif prompt_type == 3:
-        # Extract the fourth occurrence of '### Answer:'
-        first_answer_start = response_text.find("### Answer:")
-        if first_answer_start != -1:
-            second_answer_start = response_text.find("### Answer:", first_answer_start + len("### Answer:"))
-            if second_answer_start != -1:
-                third_answer_start = response_text.find("### Answer:", second_answer_start + len("### Answer:"))
-                if third_answer_start != -1:
-                    return response_text[third_answer_start + len("### Answer:"):].strip()
-
+        # Extract the third occurrence of '### Answer:' and capture until '### Reasoning:'
+        answer_start = find_nth_occurrence(response_text, "### Answer:", 3)
+        if answer_start != -1:
+            reasoning_start = response_text.find("### Reasoning:", answer_start + len("### Answer:"))
+            if reasoning_start != -1:
+                # Extract everything between '### Answer:' and '### Reasoning:'
+                answer = response_text[answer_start + len("### Answer:"):reasoning_start].strip()
+                reasoning = response_text[reasoning_start + len("### Reasoning:"):].strip()
+                return answer, reasoning
+            else:
+                # If no '### Reasoning:' is found, return everything after the third '### Answer:'
+                answer = response_text[answer_start + len("### Answer:"):].strip()
+                return answer, None
     
-    else:
-        return "Wrong prompt passed or not enough occurrences"
+    return "Wrong prompt passed or not enough occurrences", None
 
 
 
@@ -385,15 +382,15 @@ Moderate amounts of this acid can move through someone's blood stream and reach 
 ### Question:
 what is lactic acid
 
-### Answer: 
-It is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria.
-
 ### Reasoning:
-The question asks, "What is lactic acid?" seeking its definition.
+The question asks, "What is lactic acid" seeking its definition.
 The passage introduces lactic acid as 2-hydroxypropanoic acid, a compound formed when glucose is broken down.
 It specifies that this breakdown happens under specific conditions, either in living creatures or by bacteria.
 The passage also mentions the role of lactic acid in energy production, liver function, and gluconeogenesis, but these details are not directly needed to define lactic acid.
 The answer is formed by focusing on the key point: "It is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria."
+
+### Answer: 
+It is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria.
 
 ### Passage: 
 {nl_context}
@@ -408,7 +405,6 @@ The answer is formed by focusing on the key point: "It is a compound formed when
         return "incorrect value for the prompt"
 
     return prompt
-
 
 def generate_batch_responses(examples, prompt_type):
     """
@@ -426,11 +422,7 @@ def generate_batch_responses(examples, prompt_type):
     prompts = []
     gold_answers = examples['answers']  # Assuming gold answers are available in examples
     
-    
     for nl_context, nl_question in zip(examples['selected_passages'], examples['query']):
-        # Extract FOL premises and conclusion from refined_response
-       #gen_fol_premises, gen_fol_conclusion = extract_fol_parts(refined_response)
-
         # Generate the prompt using the external function
         prompt = create_prompt(nl_context, nl_question, prompt_type)
         
@@ -455,37 +447,50 @@ def generate_batch_responses(examples, prompt_type):
         do_sample=True       
     )
     
-    # Decode and extract the generated answers
+    # Decode and extract the generated answers and reasoning
     decoded_outputs = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-    #print("\nFull model outputs:\n", decoded_outputs)
+    print("\nFull model outputs:\n", decoded_outputs)
     
-    generated_answers = [extract_answer(output, prompt_type) for output in decoded_outputs]
+    # Use the updated extract_answer function to get both answers and reasoning
+    generated_answers_with_reasoning = [extract_answer(output, prompt_type) for output in decoded_outputs]
+    
+    # Split the generated answers and reasoning into separate lists
+    generated_answers = [answer for answer, reasoning in generated_answers_with_reasoning]
     
     # Add the generated answers to the batch
     examples['generated_answer'] = generated_answers
 
+    # Add reasoning only if prompt_type == 3
+    if prompt_type == 3:
+        # Handle reasoning only for prompt_type == 3
+        generated_reasonings = [reasoning if reasoning is not None else "No reasoning available" for answer, reasoning in generated_answers_with_reasoning]
+        examples['generated_reasoning'] = generated_reasonings
+
+    # Print outputs for debugging
     for i, prompt in enumerate(prompts):
         print(f"\nPrompt {i + 1}:")
         print(prompt)
         print(f"Generated Answer: {generated_answers[i]}")
+        if prompt_type == 3:
+            print(f"Generated Reasoning: {examples['generated_reasoning'][i]}")
         print(f"Gold Answer: {gold_answers[i]}")
     
     return examples
+
+
 
 
 # Load the dataset
 with open("chunk1.json", 'r') as f:
     dataset = json.load(f)
 
-dataset = Dataset.from_list(dataset).select(range(300)) # first 300 of chunk1  or chunk1_0_299 for inference
+dataset = Dataset.from_list(dataset).select(range(8))  # First 300 of chunk1 or chunk1_0_299 for inference
 
 # Batch process the dataset
 batch_size = 8 
 
 # Access the prompt_type
 chosen_prompt = args.prompt_type
-
-  # Invalid prompt type for testing
 
 # This will return "incorrect value for the prompt" and not proceed further
 dataset = dataset.map(lambda examples: generate_batch_responses(examples, prompt_type=chosen_prompt), batched=True, batch_size=batch_size)
@@ -498,25 +503,29 @@ references = []
 for example in dataset:
     predictions.append(example['generated_answer'])
     references.append(example['answers'])
-    
-    output_data.append({
+
+    # Prepare the output data structure
+    output_item = {
         "context": example['selected_passages'],
         "query": example['query'],
         "generated_answer": example['generated_answer'],
         "gold_answer": example['answers']
-    })
+    }
 
-# # Save generated answers and queries to a JSON file
-# with open("train_qa_fol_base.json", "w") as outfile:
-#     json.dump(output_data, outfile, indent=4)
+    # Add generated_reasoning only if it exists (i.e., for prompt_type == 3)
+    if 'generated_reasoning' in example:
+        output_item["generated_reasoning"] = example['generated_reasoning']
 
-# print("Saved generated answers and queries to 'train_qa_fol_base.json'.")
+    # Append to output data
+    output_data.append(output_item)
+
 # Save generated answers and queries to a JSON file
 output_filename = f"no_train_qa_simple_base_prompt_{chosen_prompt}.json"
 with open(output_filename, "w") as outfile:
     json.dump(output_data, outfile, indent=4)
 
 print(f"Saved generated answers and queries to '{output_filename}'.")
+
 # Flatten references
 predictions_flattened = predictions
 references_flattened = [item[0] if isinstance(item, list) else item for item in references]
@@ -529,4 +538,3 @@ print(f"Exact Match Score: {results['exact_match']}")
 rouge_results = rouge_metric.compute(predictions=predictions_flattened, references=references_flattened)
 formatted_rouge_results = {key: round(float(value), 4) for key, value in rouge_results.items()}
 print(f"ROUGE Scores: {formatted_rouge_results}")
-
