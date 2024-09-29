@@ -105,28 +105,6 @@ Provide a clear and concise answer in natural language to the question using onl
 """
         prompts.append(prompt)
 
-# def generate_batch_responses(examples):
-#     """
-#     Generate responses in batches.
-#     """
-#     prompts = [
-#         f"""###Instruction:
-# You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage paired with the First-order Logic Translations.\n### Passage:
-# {passage}
-# ### FOL Translation of passage: 
-# {gen_fol_premises}
-
-# ### Question:
-# {query}
-
-# ### FOL Translation of question:
-# {gen_fol_conclusion}
-
-# ### Answer:
-# """ for passage, query, gen_fol_premises, gen_fol_conclusion in zip(examples['nl_context'], examples['nl_question'], examples['generated_fol_premises'], examples['generated_fol_conclusion'])
-# #for passage, query, gen_fol_premises, gen_fol_conclusion in zip(examples['selected_passages'], examples['query'], examples['generated_fol_premises'], example['generated_fol_conclusion'])
-#    ]
-    
     # Tokenize the input prompts for the batch
     inputs = tokenizer(prompts, return_tensors="pt", padding=True, truncation=True).to("cuda")
     

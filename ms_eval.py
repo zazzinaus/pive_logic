@@ -172,9 +172,13 @@ from transformers import TrainingArguments
 from evaluate import load
 import os
 import time
+import argparse
 
 os.environ["WANDB_DISABLED"] = "true"
-
+# Argument parser setup
+parser = argparse.ArgumentParser(description='Run FOL Evaluation with a chosen prompt type.')
+parser.add_argument('--prompt_type', type=int, required=True, help='Choose the prompt type (0, 1, 2, 3)')
+args = parser.parse_args()
 # Load the exact_match and rouge metrics
 exact_match_metric = load("exact_match")
 rouge_metric = load("rouge")
@@ -201,47 +205,250 @@ model = FastLanguageModel.get_peft_model(
 )
 
 FastLanguageModel.for_inference(model)
-
-# Load the dataset
-with open("chunk1.json", 'r') as f:
-    dataset = json.load(f)
-
-dataset = Dataset.from_list(dataset).select(range(300)) # first 300 of chunk1  or chunk1_0_299 for inference
-
-def extract_answer(response_text):
+def extract_answer(response_text, prompt_type):
     """
-    Extracts the text after '### Answer:' from the generated response.
+    Extracts the text after the nth occurrence of '### Answer:' based on prompt_type.
+    - If prompt_type is 0, it extracts the text after the first occurrence.
+    - If prompt_type is 1, it extracts the text after the second occurrence.
+    - If prompt_type is 2, it extracts the text after the third occurrence.
+    - If prompt_type is 3, it extracts the text after the fourth occurrence.
     """
-    answer_start = response_text.find("### Answer:")
-    if answer_start != -1:
-        return response_text[answer_start + len("### Answer:"):].strip()
-    return "N/A"
+    if prompt_type == 0:
+        # Extract the first occurrence of '### Answer:'
+        answer_start = response_text.find("### Answer:")
+        if answer_start != -1:
+            return response_text[answer_start + len("### Answer:"):].strip()
+        
+    elif prompt_type == 1:
+        # Extract the second occurrence of '### Answer:'
+        first_answer_start = response_text.find("### Answer:")
+        if first_answer_start != -1:
+            second_answer_start = response_text.find("### Answer:", first_answer_start + len("### Answer:"))
+            if second_answer_start != -1:
+                return response_text[second_answer_start + len("### Answer:"):].strip()
+    
+    elif prompt_type == 2:
+        # Extract the third occurrence of '### Answer:'
+        first_answer_start = response_text.find("### Answer:")
+        if first_answer_start != -1:
+            second_answer_start = response_text.find("### Answer:", first_answer_start + len("### Answer:"))
+            if second_answer_start != -1:
+                third_answer_start = response_text.find("### Answer:", second_answer_start + len("### Answer:"))
+                if third_answer_start != -1:
+                    return response_text[third_answer_start + len("### Answer:"):].strip()
+    
+    elif prompt_type == 3:
+        # Extract the fourth occurrence of '### Answer:'
+        first_answer_start = response_text.find("### Answer:")
+        if first_answer_start != -1:
+            second_answer_start = response_text.find("### Answer:", first_answer_start + len("### Answer:"))
+            if second_answer_start != -1:
+                third_answer_start = response_text.find("### Answer:", second_answer_start + len("### Answer:"))
+                if third_answer_start != -1:
+                    return response_text[third_answer_start + len("### Answer:"):].strip()
+
+    
+    else:
+        return "Wrong prompt passed or not enough occurrences"
 
 
-def generate_batch_responses(examples):
+
+
+def create_prompt(nl_context, nl_question, prompt_type):
     """
-    Generate responses in batches.
+    Create a prompt based on the type of system instruction (four types).
+    
+    Parameters:
+    - nl_context: The natural language passage or context.
+    - nl_question: The natural language question.
+    - gen_fol_premises: FOL premises extracted from the response.
+    - gen_fol_conclusion: FOL conclusion extracted from the response.
+    - prompt_type: An integer to choose which prompt to use (0, 1, 2, 3).
+    
+    Returns:
+    - prompt: A formatted prompt string or "incorrect value for the prompt" if the prompt_type is invalid.
     """
-    prompts = [
-        f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+    if prompt_type == 0:
+        # Original prompt
+        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.<|eot_id|><|start_header_id|>user<|end_header_id|>
 ### Passage:
-{passage}
+{nl_context}
 
 ### Question:
-{query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+{nl_question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 
 ### Answer:
-""" for passage, query in zip(examples['selected_passages'], examples['query'])
-    ]
+"""
+    elif prompt_type == 1:
+        # Alternative prompt with step-by-step reasoning
+        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+Follow this example:
+
+Example:
+
+### Passage:
+Lactic acid, also known as 2-hydroxypropanoic or milk acid, is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria.
+In a person, for example, it is an important part of producing energy for strenuous exercise and helps with certain liver functions.
+One common use for lactic acid in a human body is the formation of glucose.
+Moderate amounts of this acid can move through someone's blood stream and reach the liver, where it undergoes a process called gluconeogenesis to become glucose.
+
+
+### Question:
+what is lactic acid
+
+### Answer: 
+It is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+### Passage: 
+{nl_context}
+
+
+### Question:
+{nl_question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+### Answer:
+"""
+    elif prompt_type == 2:
+        # Third prompt: Focus on logical consistency
+       prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+Follow these examples:
+Example 1:
+
+### Passage:
+Lactic acid, also known as 2-hydroxypropanoic or milk acid, is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria.
+In a person, for example, it is an important part of producing energy for strenuous exercise and helps with certain liver functions.
+One common use for lactic acid in a human body is the formation of glucose.
+Moderate amounts of this acid can move through someone's blood stream and reach the liver, where it undergoes a process called gluconeogenesis to become glucose.
+
+### Question:
+what is lactic acid
+
+
+### Answer: 
+It is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria.
+
+Example 2:
+
+### Passage:
+Biotin is a B vitamin that is sometimes referred to as vitamin H or vitamin B7.
+It is one of the eight vitamins in the vitamin B-complex.
+The B vitamins, in general, help in promoting healthy nerves, skin, eyes, hair, liver and a healthy mouth.
+Biotin, also known as vitamin H or coenzyme R, is a water-soluble B-vitamin (vitamin B7).
+It is composed of a ureido (tetrahydroimidizalone) ring fused with a tetrahydrothiophene ring.
+A valeric acid substituent is attached to one of the carbon atoms of the tetrahydrothiophene ring.
+Biotin is necessary for cell growth, the production of fatty acids, and the metabolism of fats and amino acids.
+Biotin assists in various metabolic reactions involving the transfer of carbon dioxide.
+It may also be helpful in maintaining a steady blood sugar level.
+
+### Question:
+is biotin a b vitamin
+
+### Answer: 
+Yes<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+### Passage: 
+{nl_context}
+
+### Question:
+{nl_question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+### Answer:
+"""
+    elif prompt_type == 3:
+        # Fourth prompt: Focus on critical reasoning
+        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are given a question and a selected passage that provides context. 
+Provide a clear answer in natural language to the question. Always provide a step-by-step reasoning and  use the information from the passage paired with the First-order Logic Translations.
+
+Answer only in this format:
+### Answer:
+correct answer in natural language
+
+### Reasoning:
+step by step reasoning which lead to the answer
+
+Follow this example:
+
+Example:
+
+### Passage:
+Lactic acid, also known as 2-hydroxypropanoic or milk acid, is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria.
+In a person, for example, it is an important part of producing energy for strenuous exercise and helps with certain liver functions.
+One common use for lactic acid in a human body is the formation of glucose.
+Moderate amounts of this acid can move through someone's blood stream and reach the liver, where it undergoes a process called gluconeogenesis to become glucose.
+
+### Question:
+what is lactic acid
+
+### Answer: 
+It is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria.
+
+### Reasoning:
+The question asks, "What is lactic acid?" seeking its definition.
+The passage introduces lactic acid as 2-hydroxypropanoic acid, a compound formed when glucose is broken down.
+It specifies that this breakdown happens under specific conditions, either in living creatures or by bacteria.
+The passage also mentions the role of lactic acid in energy production, liver function, and gluconeogenesis, but these details are not directly needed to define lactic acid.
+The answer is formed by focusing on the key point: "It is a compound formed when glucose is broken down under certain conditions in a living creature or by some types of bacteria."
+
+### Passage: 
+{nl_context}
+
+### Question:
+{nl_question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+### Answer:
+"""
+    else:
+        # Return error message if prompt_type is not valid
+        return "incorrect value for the prompt"
+
+    return prompt
+
+
+def generate_batch_responses(examples, prompt_type):
+    """
+    Generate responses in batches with a choice between four prompt types.
     
+    Parameters:
+    - prompt_type: An integer to choose which prompt to use (0, 1, 2, or 3).
+    """
+    # Check if prompt_type is valid
+    if prompt_type not in [0, 1, 2, 3]:
+        # Exit early with an error message
+        print("wrong prompt")
+        return examples  # Return the original examples without processing further
+
+    prompts = []
+    gold_answers = examples['answers']  # Assuming gold answers are available in examples
+    
+    
+    for nl_context, nl_question in zip(examples['selected_passages'], examples['query']):
+        # Extract FOL premises and conclusion from refined_response
+       #gen_fol_premises, gen_fol_conclusion = extract_fol_parts(refined_response)
+
+        # Generate the prompt using the external function
+        prompt = create_prompt(nl_context, nl_question, prompt_type)
+        
+        # If the prompt is invalid, return early with an error message
+        if prompt == "incorrect value for the prompt":
+            print("wrong prompt")
+            return examples  # Return the original examples without processing further
+        
+        # Add the generated prompt to the list
+        prompts.append(prompt)
+
     # Tokenize the input prompts for the batch
     inputs = tokenizer(prompts, return_tensors="pt", padding=True, truncation=True).to("cuda")
     
     # Generate responses for the batch
     outputs = model.generate(
         **inputs, 
-        max_new_tokens=128,  
+        max_new_tokens=128,
         use_cache=True,
         temperature=0.1,     
         top_p=0.95,          
@@ -250,23 +457,38 @@ You are given a question and a selected passage that provides context. Provide a
     
     # Decode and extract the generated answers
     decoded_outputs = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-    generated_answers = [extract_answer(output) for output in decoded_outputs]
+    #print("\nFull model outputs:\n", decoded_outputs)
+    
+    generated_answers = [extract_answer(output, prompt_type) for output in decoded_outputs]
     
     # Add the generated answers to the batch
     examples['generated_answer'] = generated_answers
+
+    for i, prompt in enumerate(prompts):
+        print(f"\nPrompt {i + 1}:")
+        print(prompt)
+        print(f"Generated Answer: {generated_answers[i]}")
+        print(f"Gold Answer: {gold_answers[i]}")
     
     return examples
 
+
+# Load the dataset
+with open("chunk1.json", 'r') as f:
+    dataset = json.load(f)
+
+dataset = Dataset.from_list(dataset).select(range(300)) # first 300 of chunk1  or chunk1_0_299 for inference
+
 # Batch process the dataset
 batch_size = 8 
-dataset = dataset.map(generate_batch_responses, batched=True, batch_size=batch_size)
 
-for i, example in enumerate(dataset):
-    print(f"Sample {i + 1}:")
-    print(f"Generated Answer: {example['generated_answer']}")
-    print(f"Gold Answer: {example['answers']}")
-    print("-" * 50)
+# Access the prompt_type
+chosen_prompt = args.prompt_type
 
+  # Invalid prompt type for testing
+
+# This will return "incorrect value for the prompt" and not proceed further
+dataset = dataset.map(lambda examples: generate_batch_responses(examples, prompt_type=chosen_prompt), batched=True, batch_size=batch_size)
 
 # Prepare to save data into a JSON file
 output_data = []
@@ -284,12 +506,17 @@ for example in dataset:
         "gold_answer": example['answers']
     })
 
+# # Save generated answers and queries to a JSON file
+# with open("train_qa_fol_base.json", "w") as outfile:
+#     json.dump(output_data, outfile, indent=4)
+
+# print("Saved generated answers and queries to 'train_qa_fol_base.json'.")
 # Save generated answers and queries to a JSON file
-with open("no_train_qa_simple_base.json", "w") as outfile:
+output_filename = f"no_train_qa_simple_base_prompt_{chosen_prompt}.json"
+with open(output_filename, "w") as outfile:
     json.dump(output_data, outfile, indent=4)
 
-print("Saved generated answers and queries to 'no_train_qa_simple_base.json'.")
-
+print(f"Saved generated answers and queries to '{output_filename}'.")
 # Flatten references
 predictions_flattened = predictions
 references_flattened = [item[0] if isinstance(item, list) else item for item in references]
@@ -302,4 +529,4 @@ print(f"Exact Match Score: {results['exact_match']}")
 rouge_results = rouge_metric.compute(predictions=predictions_flattened, references=references_flattened)
 formatted_rouge_results = {key: round(float(value), 4) for key, value in rouge_results.items()}
 print(f"ROUGE Scores: {formatted_rouge_results}")
- 
+
