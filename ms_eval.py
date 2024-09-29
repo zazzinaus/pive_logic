@@ -173,6 +173,20 @@ from evaluate import load
 import os
 import time
 import argparse
+import random
+import numpy as np
+
+# Set the seed for reproducibility
+seed = 42
+torch.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)  # If you're using CUDA
+random.seed(seed)
+np.random.seed(seed)
+
+# Ensure deterministic algorithms are used (optional but useful)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
 
 os.environ["WANDB_DISABLED"] = "true"
 # Argument parser setup
@@ -280,7 +294,8 @@ You are given a question and a selected passage that provides context. Provide a
     elif prompt_type == 1:
         # Alternative prompt with step-by-step reasoning
         prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-You are given a question and a selected passage that provides context. Provide a clear and concise answer to the question using only the information from the passage.<|eot_id|><|start_header_id|>user<|end_header_id|>
+You are given a question and a selected passage that provides context. 
+Provide a clear and concise answer to the question using only the information from the passage.<|eot_id|><|start_header_id|>user<|end_header_id|>
 
 Follow this example:
 
@@ -484,7 +499,7 @@ def generate_batch_responses(examples, prompt_type):
 with open("chunk1.json", 'r') as f:
     dataset = json.load(f)
 
-dataset = Dataset.from_list(dataset).select(range(8))  # First 300 of chunk1 or chunk1_0_299 for inference
+dataset = Dataset.from_list(dataset).select(range(300))  # First 300 of chunk1 or chunk1_0_299 for inference
 
 # Batch process the dataset
 batch_size = 8 

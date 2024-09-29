@@ -11,6 +11,15 @@ from evaluate import load
 import os
 import time
 import argparse
+import random
+import numpy as np
+
+# Set the seed for reproducibility
+seed = 42
+torch.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
+random.seed(seed)
+np.random.seed(seed)
 
 os.environ["WANDB_DISABLED"] = "true"
 # Argument parser setup
@@ -428,7 +437,7 @@ def generate_batch_responses(examples, prompt_type):
 with open("chunk1_0_299_corrected_ms.json", 'r') as f:
     dataset = json.load(f)
 
-dataset = Dataset.from_list(dataset).select(range(8)) # first 300 of chunk1  or chunk1_0_299 for inference
+dataset = Dataset.from_list(dataset)#.select(range(8)) # first 300 of chunk1  or chunk1_0_299 for inference
 
 # Batch process the dataset
 batch_size = 8 
